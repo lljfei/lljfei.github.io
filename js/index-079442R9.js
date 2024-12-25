@@ -61,8 +61,6 @@ Please change the parent <Route path="${S}"> to <Route path="${S==="/"?"*":`${S}
  */function Ok(e){return O.createElement(Xw,{flushSync:_k.flushSync,...e})}function zk(){const[e,t]=O.useState(!1),[r,o]=O.useState(""),a=kf(),l=O.useRef(null);O.useEffect(()=>{const f=d=>{l.current&&!l.current.contains(d.target)&&t(!1)};return document.addEventListener("mousedown",f),()=>document.removeEventListener("mousedown",f)},[]),O.useEffect(()=>{const f=d=>{d.key==="Escape"&&t(!1)};return e&&document.addEventListener("keydown",f),()=>document.removeEventListener("keydown",f)},[e]);const u=f=>{f.preventDefault(),r.trim()&&(a(`/posts?search=${encodeURIComponent(r.trim())}`),t(!1),o(""))};return R.jsxs("div",{className:"relative",ref:l,children:[R.jsx("button",{onClick:()=>t(!0),className:`\r
           p-2 rounded-lg transition-colors\r
           text-gray-500 dark:text-black\r
-          hover:bg-gray-100 dark:hover:bg-gray-800\r
-          hover:text-gray-700 dark:hover:text-gray-300\r
         `,"aria-label":"搜索",children:R.jsx("div",{className:"i-carbon:search text-2xl"})}),e&&R.jsxs("div",{className:"fixed inset-0 z-50 overflow-y-auto pt-24 px-4 sm:px-6 md:px-8",children:[R.jsx("div",{className:"absolute inset-0 bg-black/20 dark:bg-black/40 backdrop-blur-sm",onClick:()=>t(!1)}),R.jsxs("div",{className:`\r
             relative mx-auto max-w-2xl bg-base rounded-xl \r
             shadow-2xl overflow-hidden animate-slideDown\r
@@ -95,15 +93,11 @@ Please change the parent <Route path="${S}"> to <Route path="${S==="/"?"*":`${S}
                   shadow-sm border border-gray-200 dark:border-gray-700`,children:"↵"})," ","搜索"]})]})]})]})]})}function Vk(){const[e,t]=O.useState(!1);O.useEffect(()=>{const o=localStorage.getItem("dark-mode")==="true";t(o),o&&document.documentElement.classList.add("dark")},[]);const r=()=>{const o=!e;t(o),localStorage.setItem("dark-mode",String(o)),document.documentElement.classList.toggle("dark")};return R.jsx("button",{onClick:r,className:`\r
         p-2 rounded-lg transition-colors\r
         text-gray-500 dark:text-black\r
-        hover:bg-gray-100 dark:hover:bg-gray-800\r
-        hover:text-gray-700 dark:hover:text-gray-300\r
       `,"aria-label":"切换主题",children:e?R.jsx("div",{className:"i-carbon:sun text-2xl"}):R.jsx("div",{className:"i-carbon:moon text-2xl"})})}function Bk(){const[e,t]=O.useState(!1),r=hr(),o=[{path:"/",label:"首页"},{path:"/posts",label:"文章"},{path:"/about",label:"关于"}],a=u=>u==="/"?r.pathname==="/":r.pathname.startsWith(u),l=()=>{t(!e)};return R.jsxs(R.Fragment,{children:[R.jsxs("header",{className:"fixed top-0 inset-x-0 z-[70]",children:[R.jsx("div",{className:"absolute inset-0 bg-white/80 dark:bg-gray-900/80 backdrop-blur-lg border-b border-gray-200/50 dark:border-gray-800/50"}),R.jsx("nav",{className:"relative h-16",children:R.jsx("div",{className:"max-w-7xl mx-auto h-full px-4",children:R.jsxs("div",{className:"flex items-center h-full",children:[R.jsx(un,{to:"/",className:"text-xl font-bold bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-400 dark:to-blue-500 bg-clip-text text-transparent hover:opacity-80 transition-opacity",children:"李神"}),R.jsx("div",{className:"hidden md:flex items-center justify-center flex-1",children:R.jsx("div",{className:"flex items-center space-x-1",children:o.map(u=>R.jsx(un,{to:u.path,className:`
                         px-4 py-2 rounded-full text-sm font-medium
                         transition-all duration-200
                         ${a(u.path)?"bg-blue-500 text-white dark:bg-blue-600":"text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-gray-800"}
-                      `,children:u.label},u.label))})}),R.jsxs("div",{className:"flex items-center gap-2 ml-auto",children:[R.jsx(zk,{}),R.jsx(Vk,{}),R.jsx("button",{className:`md:hidden w-10 h-10 flex items-center justify-center\r
-                    hover:bg-gray-100 dark:hover:bg-gray-800 rounded-lg \r
-                    transition-colors`,onClick:l,"aria-label":"切换菜单",children:R.jsx("div",{className:`
+                      `,children:u.label},u.label))})}),R.jsxs("div",{className:"flex items-center gap-2 ml-auto",children:[R.jsx(zk,{}),R.jsx(Vk,{}),R.jsx("button",{className:"md:hidden w-10 h-10 flex items-center justify-center rounded-lg transition-colors",onClick:l,"aria-label":"切换菜单",children:R.jsx("div",{className:`
                     ${e?"i-carbon-close":"i-carbon-menu"} 
                     text-xl text-gray-600 dark:text-black
                   `})})]})]})})}),R.jsx("div",{className:`
