@@ -9,7 +9,6 @@ tags:
   - Windows
 categories:
   - 工具折腾
-cover: /img/covers/cover-productivity.svg
 ---
 
 工欲善其事，必先利其器。打造一个赏心悦目且响应敏捷的本地开发环境，不仅能极大提升编码舒适度，更是每一位工程师日常工作中的一种乐趣。

@@ -7,7 +7,6 @@ tags:
   - 建站
 categories:
   - 技术笔记
-cover: /img/covers/cover-setup.svg
 ---
 
 这篇记录一下本博客（李神的小站）的完整搭建过程，环境为 Windows 11 + Node.js 22。

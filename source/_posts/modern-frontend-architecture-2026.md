@@ -9,7 +9,6 @@ tags:
   - 性能优化
 categories:
   - 技术笔记
-cover: /img/covers/cover-frontend.svg
 ---
 
 过去几年中，前端领域的技术栈经历了一场从「工具链堆叠」向「原生高性能编译」与「全栈边界融合」的深刻变革。

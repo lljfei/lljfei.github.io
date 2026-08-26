@@ -1,5 +1,7 @@
 # ============================================================
-# Butterfly 主题高级定制（李神的小站 · 质感美学旗舰版）
+# Butterfly 主题配置（李神的小站定制）
+# 本文件会覆盖主题默认配置 node_modules/hexo-theme-butterfly/_config.yml
+# 完整可配置项与文档: https://butterfly.js.org/
 # ============================================================
 
 # ---------------- 导航栏 ----------------
@@ -17,30 +19,30 @@ menu:
   友链: /link/ || fas fa-link
   关于李神: /about/ || fas fa-heart
 
-# ---------------- 质感主题色体系（Cyber Aurora 极光渐变） ----------------
+# ---------------- 主题色（与头像渐变呼应） ----------------
 theme_color:
   enable: true
-  main: "#6366f1"
-  paginator: "#8b5cf6"
-  button_hover: "#ec4899"
-  text_selection: "#6366f1"
-  link_color: "#6366f1"
-  meta_color: "#94a3b8"
-  hr_color: "#6366f1"
-  code_foreground: "#f43f5e"
-  code_background: "rgba(99, 102, 241, 0.05)"
-  toc_color: "#6366f1"
-  blockquote_padding_color: "#6366f1"
-  blockquote_background_color: "rgba(99, 102, 241, 0.06)"
-  scrollbar_color: "#6366f1"
-  meta_theme_color_light: "#ffffff"
-  meta_theme_color_dark: "#0a0c14"
+  main: "#c28b32"
+  paginator: "#c84b36"
+  button_hover: "#e5b75e"
+  text_selection: "#c28b32"
+  link_color: "#a66f1e"
+  meta_color: "#756f64"
+  hr_color: "#c28b32"
+  code_foreground: "#c84b36"
+  code_background: "rgba(194, 139, 50, .08)"
+  toc_color: "#c28b32"
+  blockquote_padding_color: "#c28b32"
+  blockquote_background_color: "rgba(194, 139, 50, .08)"
+  scrollbar_color: "#c28b32"
+  meta_theme_color_light: "#f4f0e8"
+  meta_theme_color_dark: "#11100e"
 
-# ---------------- 社交链接 ----------------
+# ---------------- 社交链接（替换为你的真实地址） ----------------
 social:
   fab fa-github: https://github.com/lljfei || GitHub || '#24292e'
-  fas fa-envelope: mailto:lishen@example.com || Email || '#6366f1'
-  fas fa-rss: /atom.xml || RSS || '#f59e0b'
+  fas fa-envelope: mailto:lishen@example.com || Email || '#4a7dbe'
+  fas fa-rss: /atom.xml || RSS || '#ffa500'
 
 # ---------------- 头像 / 图标 ----------------
 favicon: /img/avatar.svg
@@ -49,47 +51,47 @@ avatar:
   img: /img/avatar.svg
   effect: false
 
-# ---------------- 顶部 Banner（深邃星云流光网格） ----------------
+# ---------------- 顶部横幅（渐变色，无需图片） ----------------
 disable_top_img: false
-default_top_img: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%)
-index_img: linear-gradient(135deg, #090d16 0%, #0f172a 50%, #1e1b4b 100%)
-index_top_img_height: 480px
-index_site_info_top: 150px
+default_top_img: linear-gradient(120deg, #15120f 0%, #201a14 48%, #0e1816 100%)
+index_img: linear-gradient(120deg, #15120f 0%, #201a14 48%, #0e1816 100%)
+index_top_img_height: 680px
+index_site_info_top: 50%
 
-# ---------------- 首页副标题打字机 ----------------
+# ---------------- 首页副标题打字机效果 ----------------
 subtitle:
   enable: true
   effect: true
   typed_option:
-    typeSpeed: 65
-    backSpeed: 30
+    typeSpeed: 62
+    backSpeed: 28
     loop: true
   source: false
   sub:
-    - 你好，我是李神 👋
-    - 保持热爱，奔赴山海 ✨
-    - 探索前沿技术 · 构建智能未来 🚀
-    - 记录代码、架构与思考的数字花园 🌿
+    - 你好，我是李神
+    - 保持热爱，奔赴山海
+    - 记录技术、思考与生活
+    - 在代码与世界之间保持好奇
 
-# ---------------- 首页文章封面与布局 ----------------
+# ---------------- 首页内容布局 ----------------
 index_layout: 3
 cover:
-  index_enable: true
+  index_enable: false
   aside_enable: true
-  archives_enable: true
+  archives_enable: false
 
-# ---------------- 代码块（macOS 极简质感） ----------------
+# ---------------- 代码块 ----------------
 code_blocks:
   theme: darker
   macStyle: true
-  height_limit: 450
+  height_limit: false
   word_wrap: false
   copy: true
   language: true
   shrink: false
-  fullpage: true
+  fullpage: false
 
-# ---------------- 文章元信息 ----------------
+# ---------------- 文章 ----------------
 post_meta:
   page:
     date_type: created
@@ -124,16 +126,7 @@ related_post:
   limit: 6
   date_type: created
 
-# ---------------- 文章过期提醒 ----------------
-noticeOutdate:
-  enable: true
-  style: flat
-  limit_day: 365
-  position: top
-  message_prev: 本文最后更新于
-  message_next: 天前，文中所涉及的技术版本、依赖库或外部环境可能已有变更，请留意甄别。
-
-# ---------------- 侧边栏（精简高质感布局） ----------------
+# ---------------- 侧边栏 ----------------
 aside:
   enable: true
   hide: false
@@ -141,20 +134,20 @@ aside:
   mobile: true
   position: right
   display:
-    archive: false
+    archive: true
     tag: true
     category: true
   card_author:
     enable: true
-    description: 保持热爱，奔赴山海。终身学习者 & 技术探索者。
+    description: 保持热爱，奔赴山海
     button:
       enable: true
       icon: fab fa-github
-      text: 关注李神 · GitHub
+      text: Follow Me
       link: https://github.com/lljfei
   card_announcement:
     enable: true
-    content: 欢迎来到李神的小站！这里记录技术实践、AI 探索与思考心得。
+    content: 欢迎来到李神的小站
   card_recent_post:
     enable: true
     limit: 5
@@ -163,21 +156,24 @@ aside:
     enable: false
   card_categories:
     enable: true
-    limit: 6
+    limit: 8
     expand: none
   card_tags:
     enable: true
-    limit: 18
-    color: true
+    limit: 40
+    color: false
     orderby: random
     order: 1
   card_archives:
-    enable: false
+    enable: true
+    type: monthly
+    format: YYYY年MM月
+    order: -1
+    limit: 8
   card_webinfo:
     enable: true
     post_count: true
     last_push_date: true
-    runtime_date: '08/26/2026 00:00:00'
 
 # ---------------- 页脚 ----------------
 footer:
@@ -187,37 +183,18 @@ footer:
   copyright:
     enable: true
     version: false
-  custom_text: '<div class="footer-live-status"><span class="footer-live-dot"></span><span>ALL SYSTEMS OPERATIONAL · 保持热爱，奔赴山海 ✨</span></div><div class="footer-nav"><a href="/">首页</a><span>·</span><a href="/archives/">时间轴</a><span>·</span><a href="/categories/">分类</a><span>·</span><a href="/tags/">标签</a><span>·</span><a href="/link/">友链</a><span>·</span><a href="/about/">关于李神</a><span>·</span><a href="https://github.com/lljfei" target="_blank">GitHub</a></div><div id="footer-runtime-clock" class="footer-runtime-box">站点稳定运行计算中...</div>'
+  custom_text: '<div class="footer-editorial-mark"><span class="footer-editorial-kicker">FIELD NOTES / LISHEN</span><strong>保持热爱，奔赴山海。</strong><span class="footer-editorial-status"><i></i> SYSTEM ONLINE</span></div><div class="footer-nav"><a href="/">首页</a><span>/</span><a href="/archives/">时间轴</a><span>/</span><a href="/categories/">分类</a><span>/</span><a href="/tags/">标签</a><span>/</span><a href="/link/">友链</a><span>/</span><a href="/about/">关于李神</a><span>/</span><a href="https://github.com/lljfei" target="_blank">GitHub</a></div><div id="footer-runtime-clock" class="footer-runtime-box">站点稳定运行计算中...</div>'
 
-
-# ---------------- 阅读模式 & 悬浮按钮 ----------------
-readmode: true
-rightside_scroll_percent: true
-rightside_config_animation: true
-
-# ---------------- 智能暗色模式 ----------------
+# ---------------- 暗色模式 ----------------
 darkmode:
   enable: true
   button: true
   autoChangeMode: 1
 
-# ---------------- 字数统计 ----------------
-wordcount:
-  enable: true
-  post_wordcount: true
-  min2read: true
-  total_wordcount: true
-
-# ---------------- 不蒜子统计 ----------------
-busuanzi:
-  site_uv: true
-  site_pv: true
-  page_pv: true
-
-# ---------------- 本地搜索 ----------------
+# ---------------- 本地搜索（依赖 hexo-generator-searchdb） ----------------
 search:
   use: local_search
-  placeholder: 搜索文章标题或内容...
+  placeholder: 搜索文章
   local_search:
     preload: true
     top_n_per_article: 1
@@ -233,32 +210,21 @@ copy:
 # ---------------- 404 页面 ----------------
 error_404:
   enable: true
-  subtitle: 页面迷航在太空中...返回地球首页吧！
+  subtitle: 页面去哪儿了？
 
-# ---------------- 数学公式 ----------------
+# ---------------- 数学公式（按文章加载） ----------------
+# 需要公式的文章在 front-matter 中加 katex: true
 math:
   use: katex
   per_page: false
   katex:
     copy_tex: true
 
-# ---------------- Mermaid 架构流程图 ----------------
-mermaid:
-  enable: true
-  code_write: true
-  theme:
-    light: default
-    dark: dark
-  open_in_new_tab: true
-  zoom_pan: true
-
 # ---------------- 图片灯箱 ----------------
 lightbox: fancybox
 
-# ---------------- UI 圆角 ----------------
-rounded_corners_ui: true
-
-# ---------------- 静态资源注入 ----------------
+# ---------------- UI 系统注入 ----------------
+rounded_corners_ui: false
 inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">

@@ -9,7 +9,6 @@ tags:
   - 开发实践
 categories:
   - 技术笔记
-cover: /img/covers/cover-ai-agent.svg
 ---
 
 在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为**「自主智能体协作（Agentic Workflow 模式）」**。
