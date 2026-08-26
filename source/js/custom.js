@@ -323,6 +323,13 @@
         document.body.classList.toggle('nav-scrolled', currentTop > 30);
 
         var header = document.querySelector('#page-header.full_page');
+        // Keep the fixed home navigation on the dark surface until the hero leaves the viewport.
+        if (header) {
+          document.body.classList.toggle('nav-over-hero', currentTop > 30 && header.getBoundingClientRect().bottom > 0);
+        } else {
+          document.body.classList.remove('nav-over-hero');
+        }
+
         if (header && !prefersReducedMotion()) {
           header.style.setProperty('--hero-scroll-shift', Math.min(currentTop * 0.08, 34).toFixed(2) + 'px');
         }
