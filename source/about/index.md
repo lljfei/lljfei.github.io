@@ -18,7 +18,7 @@ comments: false
 
 ## 找到我
 
-- GitHub：https://github.com/lishen （示例，替换为你的主页）
+- GitHub：https://github.com/lljfei
 - Email：lishen@example.com （示例，替换为你的邮箱）
 
 > 写作是一场漫长的修行，愿与诸君共勉。

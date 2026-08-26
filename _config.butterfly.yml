@@ -39,7 +39,7 @@ theme_color:
 
 # ---------------- 社交链接（替换为你的真实地址） ----------------
 social:
-  fab fa-github: https://github.com/lishen || GitHub || '#24292e'
+  fab fa-github: https://github.com/lljfei || GitHub || '#24292e'
   fas fa-envelope: mailto:lishen@example.com || Email || '#4a7dbe'
   fas fa-rss: /atom.xml || RSS || '#ffa500'
 
@@ -130,7 +130,7 @@ aside:
       enable: true
       icon: fab fa-github
       text: Follow Me
-      link: https://github.com/lishen
+      link: https://github.com/lljfei
   card_announcement:
     enable: true
     content: 欢迎来到李神的小站
