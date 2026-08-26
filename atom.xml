@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <author>
+    <name>李神</name>
+  </author>
+  <generator uri="https://hexo.io/">Hexo</generator>
+  <id>https://lljfei.github.io/</id>
+  <link href="https://lljfei.github.io/" rel="alternate"/>
+  <link href="https://lljfei.github.io/atom.xml" rel="self"/>
+  <rights>All rights reserved 2026, 李神</rights>
+  <subtitle>保持热爱，奔赴山海</subtitle>
+  <title>李神</title>
+  <updated>2026-08-26T08:02:36.129Z</updated>
+  <entry>
+    <author>
+      <name>李神</name>
+    </author>
+    <category term="技术笔记" scheme="https://lljfei.github.io/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"/>
+    <category term="Hexo" scheme="https://lljfei.github.io/tags/Hexo/"/>
+    <category term="Butterfly" scheme="https://lljfei.github.io/tags/Butterfly/"/>
+    <category term="建站" scheme="https://lljfei.github.io/tags/%E5%BB%BA%E7%AB%99/"/>
+    <content>
+      <![CDATA[<p>这篇记录一下本博客（李神的小站）的完整搭建过程，环境为 Windows 11 + Node.js 22。</p><h2 id="技术选型"><a href="#技术选型" class="headerlink" title="技术选型"></a>技术选型</h2><table><thead><tr><th>方案</th><th>特点</th><th>结论</th></tr></thead><tbody><tr><td>Hexo</td><td>Node.js 生态，中文社区最成熟，主题丰富</td><td>本站之选</td></tr><tr><td>Hugo</td><td>构建极快，但模板语法上手成本高</td><td>备选</td></tr><tr><td>Astro</td><td>现代化，适合前端深度定制</td><td>备选</td></tr><tr><td>Halo &#x2F; Ghost</td><td>功能全但需要服务器和数据库</td><td>不适合静态博客</td></tr></tbody></table><p>最终选择 <strong>Hexo + Butterfly 主题</strong>：纯静态、免费托管到 GitHub Pages、写作只需 Markdown。</p><h2 id="搭建步骤"><a href="#搭建步骤" class="headerlink" title="搭建步骤"></a>搭建步骤</h2><h3 id="1-初始化"><a href="#1-初始化" class="headerlink" title="1. 初始化"></a>1. 初始化</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">npm install -g hexo-cli</span><br><span class="line">hexo init lishen-blog</span><br><span class="line"><span class="built_in">cd</span> lishen-blog</span><br><span class="line">npm install</span><br></pre></td></tr></table></figure><h3 id="2-安装主题与插件"><a href="#2-安装主题与插件" class="headerlink" title="2. 安装主题与插件"></a>2. 安装主题与插件</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line">npm install hexo-theme-butterfly</span><br><span class="line">npm install hexo-renderer-pug hexo-renderer-stylus</span><br><span class="line">npm install hexo-generator-searchdb   <span class="comment"># 本地搜索</span></span><br><span class="line">npm install hexo-generator-feed        <span class="comment"># RSS</span></span><br></pre></td></tr></table></figure><h3 id="3-修改站点配置"><a href="#3-修改站点配置" class="headerlink" title="3. 修改站点配置"></a>3. 修改站点配置</h3><p>编辑 <code>_config.yml</code>：</p><figure class="highlight yaml"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="attr">title:</span> <span class="string">李神</span></span><br><span class="line"><span class="attr">author:</span> <span class="string">李神</span></span><br><span class="line"><span class="attr">language:</span> <span class="string">zh-CN</span></span><br><span class="line"><span class="attr">timezone:</span> <span class="string">Asia/Shanghai</span></span><br><span class="line"><span class="attr">theme:</span> <span class="string">butterfly</span></span><br><span class="line"><span class="attr">url:</span> <span class="string">https://你的用户名.github.io</span></span><br></pre></td></tr></table></figure><p>主题定制项写在根目录 <code>_config.butterfly.yml</code>，它会覆盖主题默认配置，不用动 <code>node_modules</code> 里的文件。</p><h3 id="4-常用命令"><a href="#4-常用命令" class="headerlink" title="4. 常用命令"></a>4. 常用命令</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">hexo new <span class="string">&quot;文章标题&quot;</span>   <span class="comment"># 在 source/_posts 下生成新文章</span></span><br><span class="line">hexo server          <span class="comment"># 本地预览 http://localhost:4000</span></span><br><span class="line">hexo clean &amp;&amp; hexo generate  <span class="comment"># 重新生成静态文件</span></span><br></pre></td></tr></table></figure><h3 id="5-部署到-GitHub-Pages"><a href="#5-部署到-GitHub-Pages" class="headerlink" title="5. 部署到 GitHub Pages"></a>5. 部署到 GitHub Pages</h3><ol><li>在 GitHub 上创建 <code>你的用户名.github.io</code> 仓库</li><li>把项目推上去，配置 <code>.github/workflows/deploy.yml</code></li><li>推送到 <code>main</code> 分支后，Action 会自动构建并把 <code>public/</code> 发布到 Pages</li></ol><h2 id="踩坑备忘"><a href="#踩坑备忘" class="headerlink" title="踩坑备忘"></a>踩坑备忘</h2><ul><li>主题安装后必须在 <code>_config.yml</code> 里把 <code>theme</code> 从 <code>landscape</code> 改成 <code>butterfly</code>，否则渲染的还是旧主题</li><li>修改主题配置后如果页面没变化，先 <code>hexo clean</code> 清缓存再重新生成</li><li>Windows 下命令都建议在项目根目录执行</li></ul><hr><p>至此，博客就算正式跑起来了。接下来，就该好好写文章了。</p>]]>
+    </content>
+    <id>https://lljfei.github.io/2026/08/26/blog-setup-notes/</id>
+    <link href="https://lljfei.github.io/2026/08/26/blog-setup-notes/"/>
+    <published>2026-08-26T04:00:00.000Z</published>
+    <summary>
+      <![CDATA[<p>这篇记录一下本博客（李神的小站）的完整搭建过程，环境为 Windows 11 + Node.js 22。</p>
+<h2 id="技术选型"><a href="#技术选型" class="headerlink"]]>
+    </summary>
+    <title>本站搭建记录：Hexo + Butterfly + GitHub Pages</title>
+    <updated>2026-08-26T08:02:36.129Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>李神</name>
+    </author>
+    <category term="技术笔记" scheme="https://lljfei.github.io/categories/%E6%8A%80%E6%9C%AF%E7%AC%94%E8%AE%B0/"/>
+    <category term="Markdown" scheme="https://lljfei.github.io/tags/Markdown/"/>
+    <category term="写作" scheme="https://lljfei.github.io/tags/%E5%86%99%E4%BD%9C/"/>
+    <content>
+      <![CDATA[<p>本博客所有文章都使用 Markdown 书写。这篇是给未来的自己（也可能是你）准备的排版速查表，顺便测试一下博客的各种渲染效果。</p><h2 id="标题与段落"><a href="#标题与段落" class="headerlink" title="标题与段落"></a>标题与段落</h2><p>用 <code>#</code> 到 <code>######</code> 表示一到六级标题，段落之间空一行即可。</p><h2 id="文字样式"><a href="#文字样式" class="headerlink" title="文字样式"></a>文字样式</h2><p><strong>加粗</strong>、<em>斜体</em>、<del>删除线</del>、<code>行内代码</code>，以及 <a href="https://hexo.io/">行内链接</a>。</p><h2 id="引用"><a href="#引用" class="headerlink" title="引用"></a>引用</h2><blockquote><p>这是一段引用。</p><p>引用可以有多段。</p></blockquote><h2 id="列表"><a href="#列表" class="headerlink" title="列表"></a>列表</h2><p>无序列表：</p><ul><li>第一项</li><li>第二项<ul><li>嵌套项</li></ul></li></ul><p>有序列表：</p><ol><li>第一步</li><li>第二步</li><li>第三步</li></ol><h2 id="代码块"><a href="#代码块" class="headerlink" title="代码块"></a>代码块</h2><p>行内代码用反引号包裹，代码块使用三个反引号并声明语言以获得语法高亮：</p><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">// 一段普通的 JavaScript</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">greet</span>(<span class="params">name</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> <span class="string">`你好，<span class="subst">$&#123;name&#125;</span>！`</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="variable language_">console</span>.<span class="title function_">log</span>(<span class="title function_">greet</span>(<span class="string">&#x27;李神&#x27;</span>));</span><br></pre></td></tr></table></figure><figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 一段普通的 Python</span></span><br><span class="line"><span class="keyword">def</span> <span class="title function_">fibonacci</span>(<span class="params">n: <span class="built_in">int</span></span>):</span><br><span class="line">    a, b = <span class="number">0</span>, <span class="number">1</span></span><br><span class="line">    <span class="keyword">for</span> _ <span class="keyword">in</span> <span class="built_in">range</span>(n):</span><br><span class="line">        <span class="keyword">yield</span> a</span><br><span class="line">        a, b = b, a + b</span><br><span class="line"></span><br><span class="line"><span class="built_in">print</span>(<span class="built_in">list</span>(fibonacci(<span class="number">10</span>)))</span><br></pre></td></tr></table></figure><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"># 本地启动博客</span></span><br><span class="line">hexo server</span><br></pre></td></tr></table></figure><h2 id="表格"><a href="#表格" class="headerlink" title="表格"></a>表格</h2><table><thead><tr><th>命令</th><th>作用</th></tr></thead><tbody><tr><td><code>hexo new &quot;标题&quot;</code></td><td>新建文章</td></tr><tr><td><code>hexo server</code></td><td>本地预览</td></tr><tr><td><code>hexo generate</code></td><td>生成静态文件</td></tr><tr><td><code>hexo clean</code></td><td>清理缓存</td></tr></tbody></table><h2 id="数学公式（可选）"><a href="#数学公式（可选）" class="headerlink" title="数学公式（可选）"></a>数学公式（可选）</h2><p>若主题开启了公式渲染，可以写行内公式 $E &#x3D; mc^2$，也可以写块级公式：</p><p>$$<br>\sum_{i&#x3D;1}^{n} i &#x3D; \frac{n(n+1)}{2}<br>$$</p><h2 id="分割线"><a href="#分割线" class="headerlink" title="分割线"></a>分割线</h2><hr><p>以上就是日常写作 99% 会用到的语法。剩下的 1%，用到的时候再查文档也不迟。</p>]]>
+    </content>
+    <id>https://lljfei.github.io/2026/08/26/markdown-cheatsheet/</id>
+    <link href="https://lljfei.github.io/2026/08/26/markdown-cheatsheet/"/>
+    <published>2026-08-26T03:00:00.000Z</published>
+    <summary>
+      <![CDATA[<p>本博客所有文章都使用 Markdown 书写。这篇是给未来的自己（也可能是你）准备的排版速查表，顺便测试一下博客的各种渲染效果。</p>
+<h2 id="标题与段落"><a href="#标题与段落" class="headerlink"]]>
+    </summary>
+    <title>Markdown 写作速查 —— 在博客上能用到的一切排版</title>
+    <updated>2026-08-26T08:02:36.129Z</updated>
+  </entry>
+  <entry>
+    <author>
+      <name>李神</name>
+    </author>
+    <category term="生活随笔" scheme="https://lljfei.github.io/categories/%E7%94%9F%E6%B4%BB%E9%9A%8F%E7%AC%94/"/>
+    <category term="随笔" scheme="https://lljfei.github.io/tags/%E9%9A%8F%E7%AC%94/"/>
+    <category term="公告" scheme="https://lljfei.github.io/tags/%E5%85%AC%E5%91%8A/"/>
+    <content>
+      <![CDATA[<p>大家好，我是 <strong>李神</strong>。</p><p>经过（并不漫长的）一番折腾，这个博客终于上线了。万事开头难，开头的这篇就随便聊聊：这里会写些什么，以及为什么要有这个博客。</p><h2 id="为什么写博客"><a href="#为什么写博客" class="headerlink" title="为什么写博客"></a>为什么写博客</h2><blockquote><p>输出是最好的输入。</p></blockquote><ul><li><strong>沉淀知识</strong>：学到的东西只有写下来、讲明白，才算真正掌握</li><li><strong>记录成长</strong>：多年后回头看，能清楚看到自己一路走来的轨迹</li><li><strong>结识同好</strong>：如果某篇文章恰好帮到了屏幕前的你，那就太好了</li></ul><h2 id="这里会写些什么"><a href="#这里会写些什么" class="headerlink" title="这里会写些什么"></a>这里会写些什么</h2><table><thead><tr><th>栏目方向</th><th>内容</th></tr></thead><tbody><tr><td>技术笔记</td><td>开发实践中踩过的坑与解法</td></tr><tr><td>工具折腾</td><td>各种提效工具、开源项目的使用心得</td></tr><tr><td>读书思考</td><td>书摘、随想</td></tr><tr><td>生活随笔</td><td>偶尔写点不严肃的</td></tr></tbody></table><h2 id="关于这个名字"><a href="#关于这个名字" class="headerlink" title="关于这个名字"></a>关于这个名字</h2><p>「李神」是朋友们的玩笑式爱称，起初还有点不好意思，后来就坦然接受了——毕竟，谁还不想成神呢（笑）。</p><hr><p>本站基于 <a href="https://hexo.io/">Hexo</a> + <a href="https://github.com/jerryc127/hexo-theme-butterfly">Butterfly</a> 搭建，托管于 GitHub Pages，搭建过程记在了下一篇文章里。</p><p>欢迎常来逛逛，也欢迎在评论区留下你的足迹。</p>]]>
+    </content>
+    <id>https://lljfei.github.io/2026/08/26/hello-lishen/</id>
+    <link href="https://lljfei.github.io/2026/08/26/hello-lishen/"/>
+    <published>2026-08-26T02:00:00.000Z</published>
+    <summary>
+      <![CDATA[<p>大家好，我是 <strong>李神</strong>。</p>
+<p>经过（并不漫长的）一番折腾，这个博客终于上线了。万事开头难，开头的这篇就随便聊聊：这里会写些什么，以及为什么要有这个博客。</p>
+<h2 id="为什么写博客"><a href="#为什么写博客"]]>
+    </summary>
+    <title>开博大吉！欢迎来到李神的小站</title>
+    <updated>2026-08-26T08:02:36.129Z</updated>
+  </entry>
+</feed>

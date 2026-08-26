@@ -1,0 +1,10 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="200" height="200" viewBox="0 0 200 200">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#667eea"/>
+      <stop offset="100%" stop-color="#764ba2"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="200" rx="100" fill="url(#bg)"/>
+  <text x="100" y="108" text-anchor="middle" dominant-baseline="middle" font-size="92" font-family="'PingFang SC','Microsoft YaHei','Noto Sans SC',sans-serif" fill="#ffffff" font-weight="bold">神</text>
+</svg>
