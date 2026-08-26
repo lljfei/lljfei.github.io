@@ -220,6 +220,11 @@ math:
   katex:
     copy_tex: true
 
+# ---------------- Mermaid 流程图 ----------------
+mermaid:
+  enable: true
+  code_write: true
+
 # ---------------- 图片灯箱 ----------------
 lightbox: fancybox
 

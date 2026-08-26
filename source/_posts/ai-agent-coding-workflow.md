@@ -11,7 +11,7 @@ categories:
   - 技术笔记
 ---
 
-在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为**「自主智能体协作（Agentic Workflow 模式）」**。
+在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为<strong>「自主智能体协作（Agentic Workflow 模式）」</strong>。
 
 过去我们只是把 AI 当作查阅语法的加强版搜索引擎；而现在，一个配置得当的 AI Agent 能够理解整套工程上下文、自主分析代码仓库、规划多步重构方案、编写测试用例并完成自动化校验。
 
@@ -21,7 +21,7 @@ categories:
 
 ## 1. 协作范式的演进：从单轮 Prompt 到 Agent 协同
 
-传统的一问一答模式在面对复杂业务逻辑时极容易遭遇「幻觉」和「上下文丢失」。现代 Agent 架构通过引入**感知（Perception）**、**规划（Planning）**、**工具执行（Action）**与**反思校验（Reflection）**形成了完整的反馈回路。
+传统的一问一答模式在面对复杂业务逻辑时极容易遭遇「幻觉」和「上下文丢失」。现代 Agent 架构通过引入**感知（Perception）**、**规划（Planning）**、<strong>工具执行（Action）与反思校验（Reflection）</strong>形成了完整的反馈回路。
 
 ```mermaid
 flowchart TD

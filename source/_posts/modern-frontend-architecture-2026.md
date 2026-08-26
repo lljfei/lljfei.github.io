@@ -13,7 +13,7 @@ categories:
 
 过去几年中，前端领域的技术栈经历了一场从「工具链堆叠」向「原生高性能编译」与「全栈边界融合」的深刻变革。
 
-站在 2026 年的视角回望，前端工程化已经不再局限于单纯的打包与混淆，而是贯穿了**开发体验（DX）、端到端类型安全（End-to-End Type Safety）、智能混合渲染（Hybrid Rendering）以及多包单体仓库（Monorepo）**的全链路体系。
+站在 2026 年的视角回望，前端工程化已经不再局限于单纯的打包与混淆，而是贯穿了<strong>开发体验（DX）、端到端类型安全（End-to-End Type Safety）、智能混合渲染（Hybrid Rendering）以及多包单体仓库（Monorepo）</strong>的全链路体系。
 
 <!-- more -->
 
