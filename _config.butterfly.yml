@@ -1,0 +1,210 @@
+# ============================================================
+# Butterfly 主题配置（李神的小站定制）
+# 本文件会覆盖主题默认配置 node_modules/hexo-theme-butterfly/_config.yml
+# 完整可配置项与文档: https://butterfly.js.org/
+# ============================================================
+
+# ---------------- 导航栏 ----------------
+nav:
+  logo: /img/avatar.svg
+  display_title: true
+  display_post_title: true
+  fixed: false
+
+menu:
+  首页: / || fas fa-home
+  时间轴: /archives/ || fas fa-archive
+  标签: /tags/ || fas fa-tags
+  分类: /categories/ || fas fa-folder-open
+  关于李神: /about/ || fas fa-heart
+
+# ---------------- 主题色（与头像渐变呼应） ----------------
+theme_color:
+  enable: true
+  main: "#667eea"
+  paginator: "#764ba2"
+  button_hover: "#FF7242"
+  text_selection: "#667eea"
+  link_color: "#99a9bf"
+  meta_color: "#858585"
+  hr_color: "#667eea"
+  code_foreground: "#F47466"
+  code_background: "rgba(27, 31, 35, .05)"
+  toc_color: "#667eea"
+  blockquote_padding_color: "#667eea"
+  blockquote_background_color: "#667eea"
+  scrollbar_color: "#667eea"
+  meta_theme_color_light: "ffffff"
+  meta_theme_color_dark: "#0d0d0d"
+
+# ---------------- 社交链接（替换为你的真实地址） ----------------
+social:
+  fab fa-github: https://github.com/lishen || GitHub || '#24292e'
+  fas fa-envelope: mailto:lishen@example.com || Email || '#4a7dbe'
+  fas fa-rss: /atom.xml || RSS || '#ffa500'
+
+# ---------------- 头像 / 图标 ----------------
+favicon: /img/avatar.svg
+
+avatar:
+  img: /img/avatar.svg
+  effect: false
+
+# ---------------- 顶部横幅（渐变色，无需图片） ----------------
+disable_top_img: false
+default_top_img: linear-gradient(120deg, #667eea 0%, #764ba2 100%)
+index_img: linear-gradient(120deg, #667eea 0%, #764ba2 100%)
+
+# ---------------- 首页副标题打字机效果 ----------------
+subtitle:
+  enable: true
+  effect: true
+  typed_option:
+  source: false
+  sub:
+    - 你好，我是李神
+    - 保持热爱，奔赴山海
+    - 记录技术、思考与生活
+
+# ---------------- 代码块 ----------------
+code_blocks:
+  theme: darker
+  macStyle: true
+  height_limit: false
+  word_wrap: false
+  copy: true
+  language: true
+  shrink: false
+  fullpage: false
+
+# ---------------- 文章 ----------------
+post_meta:
+  page:
+    date_type: created
+    date_format: date
+    categories: true
+    tags: false
+    label: true
+  post:
+    position: left
+    date_type: both
+    date_format: date
+    categories: true
+    tags: true
+    label: true
+
+toc:
+  post: true
+  page: false
+  number: true
+  expand: false
+  style_simple: false
+  scroll_percent: true
+
+post_copyright:
+  enable: true
+  decode: false
+  license: CC BY-NC-SA 4.0
+  license_url: https://creativecommons.org/licenses/by-nc-sa/4.0/
+
+related_post:
+  enable: true
+  limit: 6
+  date_type: created
+
+# ---------------- 侧边栏 ----------------
+aside:
+  enable: true
+  hide: false
+  button: true
+  mobile: true
+  position: right
+  display:
+    archive: true
+    tag: true
+    category: true
+  card_author:
+    enable: true
+    description: 保持热爱，奔赴山海
+    button:
+      enable: true
+      icon: fab fa-github
+      text: Follow Me
+      link: https://github.com/lishen
+  card_announcement:
+    enable: true
+    content: 欢迎来到李神的小站
+  card_recent_post:
+    enable: true
+    limit: 5
+    sort: date
+  card_newest_comments:
+    enable: false
+  card_categories:
+    enable: true
+    limit: 8
+    expand: none
+  card_tags:
+    enable: true
+    limit: 40
+    color: false
+    orderby: random
+    order: 1
+  card_archives:
+    enable: true
+    type: monthly
+    format: YYYY年MM月
+    order: -1
+    limit: 8
+  card_webinfo:
+    enable: true
+    post_count: true
+    last_push_date: true
+
+# ---------------- 页脚 ----------------
+footer:
+  owner:
+    enable: true
+    since: 2026
+  copyright:
+    enable: true
+    version: false
+  custom_text: 山高路远，看世界，也找自己。
+
+# ---------------- 暗色模式 ----------------
+darkmode:
+  enable: true
+  button: true
+  autoChangeMode: 1
+
+# ---------------- 本地搜索（依赖 hexo-generator-searchdb） ----------------
+search:
+  use: local_search
+  placeholder: 搜索文章
+  local_search:
+    preload: true
+    top_n_per_article: 1
+    unescape: true
+
+# ---------------- 复制版权 ----------------
+copy:
+  enable: true
+  copyright:
+    enable: true
+    limit_count: 150
+
+# ---------------- 404 页面 ----------------
+error_404:
+  enable: true
+  subtitle: 页面去哪儿了？
+
+# ---------------- 数学公式（按文章加载） ----------------
+# 需要公式的文章在 front-matter 中加 katex: true
+math:
+  use: katex
+  per_page: false
+  katex:
+    copy_tex: true
+
+# ---------------- 图片灯箱 ----------------
+lightbox: fancybox
