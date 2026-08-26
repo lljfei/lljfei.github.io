@@ -6,6 +6,7 @@ tags:
   - 写作
 categories:
   - 技术笔记
+cover: /img/covers/cover-cheatsheet.svg
 katex: true
 ---
 

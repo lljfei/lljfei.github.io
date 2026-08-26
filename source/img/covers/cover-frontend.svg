@@ -1,0 +1,56 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 450" width="800" height="450">
+  <defs>
+    <linearGradient id="bgFe" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0b0f19" />
+      <stop offset="60%" stop-color="#111827" />
+      <stop offset="100%" stop-color="#1e1b4b" />
+    </linearGradient>
+    <linearGradient id="viteGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#41d1ff" />
+      <stop offset="100%" stop-color="#bd34fe" />
+    </linearGradient>
+    <linearGradient id="tsGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#3178c6" />
+      <stop offset="100%" stop-color="#60a5fa" />
+    </linearGradient>
+    <filter id="glowFe">
+      <feGaussianBlur stdDeviation="10" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+  </defs>
+
+  <rect width="800" height="450" fill="url(#bgFe)" />
+
+  <!-- 科技光束与构建轨道 -->
+  <path d="M 50 380 L 350 180 L 450 180 L 750 380" fill="none" stroke="rgba(99,102,241,0.2)" stroke-width="2" />
+  <path d="M 150 400 L 380 220 L 420 220 L 650 400" fill="none" stroke="url(#viteGrad)" stroke-width="2.5" opacity="0.7" filter="url(#glowFe)" />
+
+  <!-- 核心中央立体多面体 / 编译器引擎 -->
+  <g transform="translate(400, 180)">
+    <polygon points="0,-60 52,-30 52,30 0,60 -52,30 -52,-30" fill="none" stroke="url(#viteGrad)" stroke-width="3" filter="url(#glowFe)" />
+    <polygon points="0,-45 39,-22 39,22 0,45 -39,22 -39,-22" fill="rgba(99,102,241,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="1.5" />
+    
+    <!-- 闪电/速度图标 -->
+    <path d="M 6 -24 L -16 2 L 2 2 L -6 24 L 16 -2 L -2 -2 Z" fill="url(#viteGrad)" filter="url(#glowFe)" />
+  </g>
+
+  <!-- 浮动生态卡片 -->
+  <!-- 左侧：TypeScript -->
+  <g transform="translate(200, 140)">
+    <rect x="-35" y="-35" width="70" height="70" rx="14" fill="#0f172a" stroke="#3b82f6" stroke-width="2" filter="url(#glowFe)" />
+    <text x="0" y="8" font-family="'JetBrains Mono', Consolas, sans-serif" font-size="28" font-weight="900" fill="#60a5fa" text-anchor="middle">TS</text>
+  </g>
+
+  <!-- 右侧：Rust / Rolldown -->
+  <g transform="translate(600, 140)">
+    <rect x="-35" y="-35" width="70" height="70" rx="14" fill="#0f172a" stroke="#f97316" stroke-width="2" filter="url(#glowFe)" />
+    <text x="0" y="8" font-family="'JetBrains Mono', Consolas, sans-serif" font-size="26" font-weight="900" fill="#fb923c" text-anchor="middle">🦀</text>
+  </g>
+
+  <!-- 底部标题 -->
+  <text x="400" y="320" font-family="'JetBrains Mono', Consolas, sans-serif" font-size="15" font-weight="800" text-anchor="middle" fill="#e0e7ff" letter-spacing="4">MODERN FRONTEND ARCHITECTURE</text>
+  <text x="400" y="348" font-family="-apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif" font-size="13" text-anchor="middle" fill="#94a3b8" letter-spacing="1">原生化编译 · 全栈融合 · 极速构建</text>
+</svg>

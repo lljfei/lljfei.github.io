@@ -6,6 +6,7 @@ tags:
   - 公告
 categories:
   - 生活随笔
+cover: /img/covers/cover-hello.svg
 ---
 
 大家好，我是 **李神**。
