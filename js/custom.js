@@ -391,6 +391,265 @@
     update();
   }
 
+  function initMermaidInlineViewer() {
+    if (window.editorialMermaidViewerBound) return;
+    window.editorialMermaidViewerBound = true;
+
+    var openViewer = function (wrap, trigger) {
+      if (window.editorialMermaidViewerClose) window.editorialMermaidViewerClose();
+
+      var source = wrap.__mermaidOriginalSvg || wrap.querySelector('svg');
+      var svg = null;
+      if (typeof source === 'string') {
+        var template = document.createElement('template');
+        template.innerHTML = source.trim();
+        var parsedSvg = template.content.querySelector('svg');
+        if (parsedSvg) svg = parsedSvg.cloneNode(true);
+      } else if (source && typeof source.cloneNode === 'function') {
+        svg = source.cloneNode(true);
+      }
+      if (!svg) return false;
+
+      var initViewBox = wrap.__mermaidInitViewBox;
+      if (initViewBox && initViewBox.length === 4) svg.setAttribute('viewBox', initViewBox.join(' '));
+      if (!svg.getAttribute('xmlns')) svg.setAttribute('xmlns', 'http://www.w3.org/2000/svg');
+      svg.setAttribute('aria-hidden', 'true');
+
+      var viewer = document.createElement('div');
+      viewer.className = 'mermaid-viewer';
+      viewer.tabIndex = -1;
+      viewer.setAttribute('role', 'dialog');
+      viewer.setAttribute('aria-modal', 'true');
+      viewer.setAttribute('aria-label', '流程图放大查看');
+
+      var panel = document.createElement('div');
+      panel.className = 'mermaid-viewer-panel';
+
+      var stage = document.createElement('div');
+      stage.className = 'mermaid-viewer-stage';
+
+      var canvas = document.createElement('div');
+      canvas.className = 'mermaid-viewer-canvas';
+      canvas.appendChild(svg);
+      stage.appendChild(canvas);
+
+      var closeButton = document.createElement('button');
+      closeButton.type = 'button';
+      closeButton.className = 'mermaid-viewer-close';
+      closeButton.setAttribute('aria-label', '关闭流程图放大查看');
+      closeButton.textContent = '×';
+
+      var hint = document.createElement('div');
+      hint.className = 'mermaid-viewer-hint';
+      hint.textContent = '滚轮 / 双指缩放 · 拖动查看 · 双击还原';
+
+      panel.appendChild(closeButton);
+      panel.appendChild(stage);
+      panel.appendChild(hint);
+      viewer.appendChild(panel);
+      document.body.appendChild(viewer);
+      document.documentElement.classList.add('mermaid-viewer-open');
+
+      var viewBoxParts = (svg.getAttribute('viewBox') || '').trim().split(/[\s,]+/).map(Number);
+      var hasViewBox = viewBoxParts.length === 4 && viewBoxParts.every(function (value) {
+        return Number.isFinite(value);
+      }) && viewBoxParts[2] > 0 && viewBoxParts[3] > 0;
+      var aspectRatio = hasViewBox ? viewBoxParts[2] / viewBoxParts[3] : 16 / 9;
+      var zoom = 1;
+      var panX = 0;
+      var panY = 0;
+      var pointers = new Map();
+      var lastPointer = null;
+      var pinch = null;
+      var closed = false;
+
+      var applyTransform = function () {
+        canvas.style.left = 'calc(50% + ' + panX + 'px)';
+        canvas.style.top = 'calc(50% + ' + panY + 'px)';
+        canvas.style.transform = 'translate(-50%, -50%) scale(' + zoom + ')';
+      };
+
+      var fitCanvas = function () {
+        var rect = stage.getBoundingClientRect();
+        var availableWidth = Math.max(120, rect.width - 32);
+        var availableHeight = Math.max(80, rect.height - 32);
+        var width = Math.min(availableWidth, availableHeight * aspectRatio);
+        var height = width / aspectRatio;
+        canvas.style.width = width + 'px';
+        canvas.style.height = height + 'px';
+        applyTransform();
+      };
+
+      var stageCenter = function () {
+        var rect = stage.getBoundingClientRect();
+        return { x: rect.left + rect.width / 2, y: rect.top + rect.height / 2 };
+      };
+
+      var setZoom = function (nextZoom, clientX, clientY) {
+        var boundedZoom = Math.max(1, Math.min(8, nextZoom));
+        if (clientX !== undefined && clientY !== undefined && zoom > 0) {
+          // Keep the content point under the mouse or finger midpoint fixed while zooming.
+          var center = stageCenter();
+          var ratio = boundedZoom / zoom;
+          var offsetX = clientX - center.x;
+          var offsetY = clientY - center.y;
+          panX = offsetX - (offsetX - panX) * ratio;
+          panY = offsetY - (offsetY - panY) * ratio;
+        }
+        zoom = boundedZoom;
+        applyTransform();
+      };
+
+      var resetView = function () {
+        zoom = 1;
+        panX = 0;
+        panY = 0;
+        applyTransform();
+      };
+
+      var getPointerPair = function () {
+        return Array.from(pointers.values()).slice(0, 2);
+      };
+
+      var onPointerDown = function (event) {
+        if (event.pointerType === 'mouse' && event.button !== 0) return;
+        event.preventDefault();
+        if (stage.setPointerCapture) stage.setPointerCapture(event.pointerId);
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+        stage.classList.add('is-dragging');
+
+        if (pointers.size === 1) {
+          lastPointer = { x: event.clientX, y: event.clientY };
+          pinch = null;
+          return;
+        }
+
+        if (pointers.size === 2) {
+          var pair = getPointerPair();
+          var dx = pair[0].x - pair[1].x;
+          var dy = pair[0].y - pair[1].y;
+          var distance = Math.max(1, Math.hypot(dx, dy));
+          var midpoint = { x: (pair[0].x + pair[1].x) / 2, y: (pair[0].y + pair[1].y) / 2 };
+          var center = stageCenter();
+          pinch = {
+            distance: distance,
+            zoom: zoom,
+            localX: (midpoint.x - center.x - panX) / zoom,
+            localY: (midpoint.y - center.y - panY) / zoom
+          };
+        }
+      };
+
+      var onPointerMove = function (event) {
+        if (!pointers.has(event.pointerId)) return;
+        event.preventDefault();
+        pointers.set(event.pointerId, { x: event.clientX, y: event.clientY });
+
+        if (pointers.size === 2 && pinch) {
+          var pair = getPointerPair();
+          var dx = pair[0].x - pair[1].x;
+          var dy = pair[0].y - pair[1].y;
+          var distance = Math.max(1, Math.hypot(dx, dy));
+          var midpoint = { x: (pair[0].x + pair[1].x) / 2, y: (pair[0].y + pair[1].y) / 2 };
+          var center = stageCenter();
+          zoom = Math.max(1, Math.min(8, pinch.zoom * distance / pinch.distance));
+          panX = midpoint.x - center.x - pinch.localX * zoom;
+          panY = midpoint.y - center.y - pinch.localY * zoom;
+          applyTransform();
+          return;
+        }
+
+        if (pointers.size === 1 && !pinch && lastPointer) {
+          panX += event.clientX - lastPointer.x;
+          panY += event.clientY - lastPointer.y;
+          lastPointer = { x: event.clientX, y: event.clientY };
+          applyTransform();
+        }
+      };
+
+      var onPointerUp = function (event) {
+        if (stage.releasePointerCapture && stage.hasPointerCapture && stage.hasPointerCapture(event.pointerId)) {
+          stage.releasePointerCapture(event.pointerId);
+        }
+        pointers.delete(event.pointerId);
+        if (pointers.size === 1) {
+          pinch = null;
+          var remaining = pointers.values().next().value;
+          lastPointer = { x: remaining.x, y: remaining.y };
+        } else if (pointers.size === 0) {
+          pinch = null;
+          lastPointer = null;
+          stage.classList.remove('is-dragging');
+        }
+      };
+
+      var onWheel = function (event) {
+        event.preventDefault();
+        event.stopPropagation();
+        var delta = event.deltaY;
+        if (event.deltaMode === 1) delta *= 16;
+        else if (event.deltaMode === 2) delta *= 400;
+        setZoom(zoom * Math.exp(-delta * 0.001), event.clientX, event.clientY);
+      };
+
+      var close = function () {
+        if (closed) return;
+        closed = true;
+        window.removeEventListener('resize', fitCanvas);
+        document.documentElement.classList.remove('mermaid-viewer-open');
+        if (window.editorialMermaidViewerClose === close) window.editorialMermaidViewerClose = null;
+        viewer.remove();
+        if (!document.contains(trigger)) return;
+        try {
+          trigger.focus({ preventScroll: true });
+        } catch (error) {
+          trigger.focus();
+        }
+      };
+
+      stage.addEventListener('pointerdown', onPointerDown);
+      stage.addEventListener('pointermove', onPointerMove);
+      stage.addEventListener('pointerup', onPointerUp);
+      stage.addEventListener('pointercancel', onPointerUp);
+      stage.addEventListener('wheel', onWheel, { passive: false });
+      stage.addEventListener('dblclick', function (event) {
+        event.preventDefault();
+        resetView();
+      });
+      closeButton.addEventListener('click', close);
+      viewer.addEventListener('click', function (event) {
+        if (event.target === viewer) close();
+      });
+      viewer.addEventListener('keydown', function (event) {
+        if (event.key === 'Escape') close();
+        else if (event.key === '+' || event.key === '=') setZoom(zoom * 1.25);
+        else if (event.key === '-') setZoom(zoom / 1.25);
+        else if (event.key === '0') resetView();
+      });
+      window.addEventListener('resize', fitCanvas);
+      window.editorialMermaidViewerClose = close;
+      trigger.setAttribute('aria-label', '在当前页面放大流程图');
+      fitCanvas();
+      viewer.focus({ preventScroll: true });
+      return true;
+    };
+
+    document.addEventListener('click', function (event) {
+      var button = event.target && event.target.closest ? event.target.closest('.mermaid-open-btn') : null;
+      var wrap = button && button.closest ? button.closest('.mermaid-wrap') : null;
+      if (!button || !wrap || !document.documentElement.contains(button)) return;
+      if (!openViewer(wrap, button)) return;
+
+      event.preventDefault();
+      event.stopPropagation();
+      event.stopImmediatePropagation();
+    }, true);
+
+    document.addEventListener('pjax:send', function () {
+      if (window.editorialMermaidViewerClose) window.editorialMermaidViewerClose();
+    });
+  }
+
   function initTableScroll() {
     document.querySelectorAll('#article-container table').forEach(function (table) {
       if (table.parentElement && table.parentElement.classList.contains('editorial-table-scroll')) return;
@@ -411,6 +670,7 @@
     initScrollEffects();
     initEditorialRail();
     initLiveUptime();
+    initMermaidInlineViewer();
     initTableScroll();
   }
 
