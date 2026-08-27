@@ -608,7 +608,7 @@ body.nav-scrolled #page-header #nav #search-button {
   left: auto;
   width: auto;
   margin: 0 !important;
-  font-size: clamp(3.2rem, 6vw, 5.8rem) !important;
+  font-size: clamp(2.8rem, 4.8vw, 4.6rem) !important;
   letter-spacing: -0.06em;
   line-height: 1 !important;
   text-align: left;
@@ -2663,7 +2663,7 @@ html.motion-ready .reveal-on-scroll.is-visible {
   }
 
   #page-header.not-home-page:not(.post-bg) #site-title {
-    font-size: clamp(2.7rem, 13vw, 4rem) !important;
+    font-size: clamp(2.4rem, 11vw, 3.4rem) !important;
   }
 
   #page-header.post-bg {
@@ -3294,7 +3294,7 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
   min-height: 42px;
   padding: 0 18px 0 0 !important;
   border: 0 !important;
-  border-right: 1px solid rgba(229, 183, 94, 0.42) !important;
+  border-right: 1px solid rgba(247, 240, 228, 0.24) !important;
   border-radius: 0 !important;
   background: transparent !important;
   box-shadow: none !important;
@@ -3307,10 +3307,10 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
   width: 38px !important;
   height: 38px !important;
   margin: 0 !important;
-  border: 1px solid var(--ed-gold-bright);
-  border-radius: 50%;
-  background: rgba(17, 16, 14, 0.72);
-  box-shadow: 0 0 0 4px rgba(229, 183, 94, 0.1), 0 8px 18px rgba(0, 0, 0, 0.26);
+  border: 1px solid rgba(248, 234, 215, 0.72);
+  border-radius: 7px;
+  background: var(--ed-vermilion);
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.2);
 }
 
 #page-header.full_page #nav #blog-info .site-name,
@@ -3318,8 +3318,9 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
 #page-header.post-bg #nav #blog-info .site-name {
   color: #fff8ea !important;
   font-family: var(--ed-serif);
+  font-weight: 600;
   font-size: 1.16rem;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.02em;
   text-shadow: none;
   transition: color 360ms var(--ed-ease), text-shadow 360ms var(--ed-ease);
 }
@@ -3532,6 +3533,7 @@ body.nav-scrolled #page-header.post-bg #nav .menus_items .menus_item > a.is-curr
   #page-header.post-bg #nav #blog-info .site-icon {
     width: 34px !important;
     height: 34px !important;
+    border-radius: 6px;
   }
 
   #page-header.full_page #nav #blog-info .site-name,
