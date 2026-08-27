@@ -116,6 +116,10 @@ a:hover {
   color: #fffdf8 !important;
 }
 
+#card-toc .toc-percentage {
+  display: none;
+}
+
 a:focus-visible,
 button:focus-visible,
 [tabindex]:focus-visible {
@@ -1181,6 +1185,126 @@ body.nav-scrolled #page-header #nav #search-button {
 #article-container pre code {
   color: inherit;
   background: transparent;
+}
+
+#article-container .mermaid-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  padding: 8px;
+}
+
+#article-container .mermaid-wrap .mermaid-open-btn {
+  position: static;
+  order: -1;
+  align-self: flex-end;
+  flex: 0 0 auto;
+  margin: 0 0 6px;
+}
+
+#article-container .mermaid-wrap > svg {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+.mermaid-viewer-open,
+.mermaid-viewer-open body {
+  overflow: hidden;
+}
+
+.mermaid-viewer {
+  position: fixed;
+  z-index: 1200;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  background: rgba(12, 11, 9, 0.72);
+  backdrop-filter: blur(8px) saturate(0.92);
+}
+
+.mermaid-viewer-panel {
+  position: relative;
+  width: min(1180px, calc(100vw - 20px));
+  height: min(780px, calc(100vh - 20px));
+  overflow: hidden;
+  border: 1px solid color-mix(in srgb, var(--ed-gold-bright) 52%, transparent);
+  border-radius: 6px;
+  background: color-mix(in srgb, var(--ed-surface) 96%, transparent);
+  box-shadow: 0 28px 90px rgba(0, 0, 0, 0.42), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+}
+
+.mermaid-viewer-stage {
+  position: absolute;
+  inset: 12px 10px 44px;
+  overflow: hidden;
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  overscroll-behavior: contain;
+}
+
+.mermaid-viewer-stage.is-dragging {
+  cursor: grabbing;
+}
+
+.mermaid-viewer-canvas {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: center;
+  will-change: left, top, transform;
+}
+
+.mermaid-viewer-canvas > svg {
+  display: block;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none !important;
+  max-height: none !important;
+}
+
+.mermaid-viewer-close {
+  position: absolute;
+  z-index: 2;
+  top: 10px;
+  right: 12px;
+  display: grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  padding: 0;
+  border: 1px solid var(--ed-line-strong);
+  border-radius: 50%;
+  background: color-mix(in srgb, var(--ed-surface-strong) 88%, transparent);
+  color: var(--ed-ink);
+  cursor: pointer;
+  font-size: 1.45rem;
+  line-height: 1;
+  transition: border-color var(--ed-fast) ease, background-color var(--ed-fast) ease, color var(--ed-fast) ease, transform var(--ed-fast) var(--ed-ease);
+}
+
+.mermaid-viewer-close:hover {
+  border-color: var(--ed-gold);
+  background: color-mix(in srgb, var(--ed-gold) 16%, var(--ed-surface-strong));
+  color: var(--ed-vermilion);
+  transform: rotate(90deg);
+}
+
+.mermaid-viewer-hint {
+  position: absolute;
+  right: 16px;
+  bottom: 12px;
+  left: 16px;
+  color: var(--ed-muted);
+  font-family: var(--ed-mono);
+  font-size: 0.66rem;
+  letter-spacing: 0.04em;
+  line-height: 1.4;
+  text-align: center;
+  pointer-events: none;
 }
 
 #post .post-copyright {

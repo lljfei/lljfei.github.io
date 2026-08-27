@@ -224,6 +224,7 @@ math:
 mermaid:
   enable: true
   code_write: true
+  zoom_pan: false
 
 # ---------------- 图片灯箱 ----------------
 lightbox: fancybox
