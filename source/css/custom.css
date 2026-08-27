@@ -789,6 +789,10 @@ body.nav-scrolled #page-header #nav #search-button {
   color: var(--ed-vermilion) !important;
 }
 
+#recent-posts .recent-post-item:not(.ads-wrap) {
+  cursor: pointer;
+}
+
 .recent-post-item .post_cover {
   background: linear-gradient(135deg, #241c15, #1b2a26);
 }
@@ -1934,6 +1938,21 @@ body.nav-scrolled #nav #search-button .search {
   transform: translateY(-2px);
 }
 
+#aside-content .card-tag-cloud a {
+  position: relative;
+  border-radius: 3px;
+  text-decoration: none !important;
+  transition: background-color var(--ed-fast) ease, box-shadow var(--ed-fast) ease, color var(--ed-fast) ease, transform var(--ed-fast) var(--ed-ease);
+}
+
+#aside-content .card-tag-cloud a:hover,
+#aside-content .card-tag-cloud a:focus-visible {
+  background: color-mix(in srgb, var(--ed-gold) 16%, var(--ed-surface)) !important;
+  box-shadow: inset 0 0 0 1px color-mix(in srgb, var(--ed-gold-bright) 62%, transparent), 0 4px 10px rgba(194, 139, 50, 0.14);
+  color: var(--ed-vermilion) !important;
+  transform: translateY(-1px);
+}
+
 #aside-content .card-info .author-info-name {
   color: var(--ed-ink) !important;
   font-family: var(--ed-serif);
@@ -1952,6 +1971,13 @@ body.nav-scrolled #nav #search-button .search {
 #aside-content .card-info .avatar-img img:hover,
 #aside-content .card-info .card-info-social-icons i:hover {
   transform: none !important;
+}
+
+#aside-content .card-info .card-info-social-icons a:hover i,
+#aside-content .card-info .card-info-social-icons a:focus-visible i {
+  color: var(--ed-vermilion) !important;
+  filter: drop-shadow(0 4px 8px rgba(200, 75, 54, 0.24));
+  transform: translateY(-3px) scale(1.12) !important;
 }
 
 #aside-content #card-info-btn {
@@ -3083,12 +3109,17 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
 #page-header.full_page #nav,
 #page-header.not-home-page #nav,
 #page-header.post-bg #nav {
+  box-sizing: border-box;
+  height: 78px;
   min-height: 78px;
   padding: 14px clamp(20px, 3.4vw, 68px) 0;
   border-bottom: 1px solid rgba(229, 183, 94, 0.42);
-  background: linear-gradient(180deg, rgba(6, 10, 10, 0.97), rgba(8, 12, 12, 0.86)) !important;
+  background-color: rgba(8, 12, 12, 0.94) !important;
+  background-image: none !important;
   box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3) !important;
-  backdrop-filter: blur(16px) saturate(1.18);
+  backdrop-filter: blur(18px) saturate(1.16);
+  transition: height 360ms var(--ed-ease), min-height 360ms var(--ed-ease), background-color 360ms var(--ed-ease), border-color 360ms var(--ed-ease), box-shadow 360ms var(--ed-ease);
+  will-change: height, background-color, box-shadow;
 }
 
 #page-header.full_page #nav::before,
@@ -3101,6 +3132,7 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
   background: linear-gradient(90deg, var(--ed-vermilion), var(--ed-gold-bright) 48%, var(--ed-green));
   opacity: 0.95;
   transform: none;
+  transition: opacity 360ms var(--ed-ease);
 }
 
 #page-header.full_page #nav::after,
@@ -3165,6 +3197,7 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
   font-size: 1.16rem;
   letter-spacing: 0.08em;
   text-shadow: none;
+  transition: color 360ms var(--ed-ease), text-shadow 360ms var(--ed-ease);
 }
 
 #page-header.full_page #nav #menus,
@@ -3176,9 +3209,11 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
   padding: 4px !important;
   border: 1px solid rgba(229, 183, 94, 0.5) !important;
   border-radius: 10px !important;
-  background: rgba(8, 12, 12, 0.94) !important;
+  background-color: rgba(8, 12, 12, 0.94) !important;
+  background-image: none !important;
   box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
   backdrop-filter: blur(16px) saturate(1.12);
+  transition: background-color 360ms var(--ed-ease), border-color 360ms var(--ed-ease), box-shadow 360ms var(--ed-ease);
 }
 
 #page-header.full_page #nav #menus .menus_items,
@@ -3218,7 +3253,7 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
   letter-spacing: 0.03em;
   line-height: 1;
   text-shadow: none;
-  transition: background-color 180ms ease, border-color 180ms ease, color 180ms ease, transform 220ms var(--ed-ease);
+  transition: background-color 280ms var(--ed-ease), border-color 280ms var(--ed-ease), color 280ms var(--ed-ease), box-shadow 280ms var(--ed-ease), transform 280ms var(--ed-ease);
 }
 
 #page-header.full_page #nav #search-button .search,
@@ -3268,17 +3303,17 @@ body.nav-scrolled #page-header.full_page #nav #search-button .search {
 body.nav-scrolled #page-header.full_page #nav,
 body.nav-scrolled #page-header.not-home-page #nav,
 body.nav-scrolled #page-header.post-bg #nav {
+  height: 68px;
   min-height: 68px;
   border-bottom-color: var(--ed-line-strong);
-  background: color-mix(in srgb, var(--ed-surface) 96%, transparent) !important;
+  background-color: color-mix(in srgb, var(--ed-surface) 96%, transparent) !important;
+  background-image: none !important;
   box-shadow: 0 12px 28px rgba(54, 45, 31, 0.16) !important;
-  backdrop-filter: blur(18px) saturate(1.12);
 }
 
 body.nav-scrolled #page-header.full_page #nav::before,
 body.nav-scrolled #page-header.not-home-page #nav::before,
 body.nav-scrolled #page-header.post-bg #nav::before {
-  background: linear-gradient(90deg, transparent, var(--ed-gold), transparent);
   opacity: 0.72;
 }
 
@@ -3305,7 +3340,8 @@ body.nav-scrolled #page-header.full_page #nav #menus,
 body.nav-scrolled #page-header.not-home-page #nav #menus,
 body.nav-scrolled #page-header.post-bg #nav #menus {
   border-color: var(--ed-line-strong) !important;
-  background: color-mix(in srgb, var(--ed-surface) 96%, transparent) !important;
+  background-color: color-mix(in srgb, var(--ed-surface) 96%, transparent) !important;
+  background-image: none !important;
   box-shadow: 0 8px 22px rgba(54, 45, 31, 0.12), inset 0 1px 0 color-mix(in srgb, var(--ed-surface-strong) 70%, transparent) !important;
 }
 
@@ -3347,8 +3383,16 @@ body.nav-scrolled #page-header.post-bg #nav .menus_items .menus_item > a.is-curr
   #page-header.full_page #nav,
   #page-header.not-home-page #nav,
   #page-header.post-bg #nav {
+    height: 64px;
     min-height: 64px;
     padding: 9px 14px 0;
+  }
+
+  body.nav-scrolled #page-header.full_page #nav,
+  body.nav-scrolled #page-header.not-home-page #nav,
+  body.nav-scrolled #page-header.post-bg #nav {
+    height: 60px;
+    min-height: 60px;
   }
 
   #page-header.full_page #nav #blog-info .nav-site-title,
@@ -3410,43 +3454,6 @@ body.nav-scrolled #page-header.post-bg #nav .menus_items .menus_item > a.is-curr
 
 /* Keep the visible fixed navigation flush with the viewport edge. */
 #page-header.nav-fixed.nav-visible:not(.fixed) #nav {
+  padding-top: 0;
   transform: translate3d(0, 60px, 0) !important;
-}
-
-/* Keep the fixed home navigation visually connected to the visible hero. */
-body.nav-over-hero #page-header.full_page.nav-fixed #nav {
-  border-bottom-color: rgba(229, 183, 94, 0.42);
-  background: linear-gradient(180deg, rgba(6, 10, 10, 0.98), rgba(8, 12, 12, 0.94)) !important;
-  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.3) !important;
-}
-
-body.nav-over-hero #page-header.full_page.nav-fixed #nav::before {
-  background: linear-gradient(90deg, var(--ed-vermilion), var(--ed-gold-bright) 48%, var(--ed-green));
-  opacity: 0.95;
-}
-
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #blog-info .nav-site-title {
-  border-right-color: rgba(229, 183, 94, 0.42) !important;
-}
-
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #blog-info .site-name,
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #search-button .search,
-body.nav-over-hero #page-header.full_page.nav-fixed #nav .menus_items .menus_item > a,
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #toggle-menu {
-  color: rgba(247, 240, 228, 0.86) !important;
-  text-shadow: 0 1px 12px rgba(0, 0, 0, 0.34);
-}
-
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #menus {
-  border-color: rgba(229, 183, 94, 0.5) !important;
-  background: rgba(8, 12, 12, 0.94) !important;
-  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.3), inset 0 1px 0 rgba(255, 255, 255, 0.08) !important;
-}
-
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #search-button .search:hover,
-body.nav-over-hero #page-header.full_page.nav-fixed #nav .menus_items .menus_item > a:hover,
-body.nav-over-hero #page-header.full_page.nav-fixed #nav #toggle-menu:hover {
-  border-color: rgba(229, 183, 94, 0.5);
-  background: rgba(229, 183, 94, 0.14);
-  color: #fff8ea !important;
 }
