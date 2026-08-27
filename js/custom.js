@@ -199,6 +199,23 @@
     };
   }
 
+  function initRecentPostCardLinks() {
+    var recentPosts = document.getElementById('recent-posts');
+    if (!recentPosts || recentPosts.dataset.editorialCardLinks === 'true') return;
+    recentPosts.dataset.editorialCardLinks = 'true';
+
+    recentPosts.addEventListener('click', function (event) {
+      if (event.defaultPrevented || event.button !== 0) return;
+
+      var card = event.target.closest ? event.target.closest('.recent-post-item') : null;
+      if (!card || !recentPosts.contains(card) || card.classList.contains('ads-wrap')) return;
+      if (event.target.closest('a, button, input, textarea, select, summary')) return;
+
+      var titleLink = card.querySelector('.article-title');
+      if (titleLink) titleLink.click();
+    });
+  }
+
   function initScrollReveal() {
     var selectors = '.recent-post-item, #aside-content .card-widget, #post, #article-container h2, #pagination, .flink-list-item, .about-editorial > *, .about-grid > .editorial-panel';
     var targets = Array.from(document.querySelectorAll(selectors));
@@ -293,7 +310,9 @@
     if (window.editorialNavBound) return;
     window.editorialNavBound = true;
     var update = function () {
-      document.body.classList.toggle('nav-scrolled', window.scrollY > 30);
+      var currentTop = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+      // Keep the compact navigation state until the browser reaches the exact page origin.
+      document.body.classList.toggle('nav-scrolled', currentTop > 0);
     };
     window.addEventListener('scroll', update, { passive: true });
     update();
@@ -319,16 +338,10 @@
       if (ticking) return;
       ticking = true;
       window.requestAnimationFrame(function () {
-        var currentTop = window.scrollY || document.documentElement.scrollTop || 0;
-        document.body.classList.toggle('nav-scrolled', currentTop > 30);
+        var currentTop = Math.max(0, window.scrollY || document.documentElement.scrollTop || 0);
+        document.body.classList.toggle('nav-scrolled', currentTop > 0);
 
         var header = document.querySelector('#page-header.full_page');
-        // Keep the fixed home navigation on the dark surface until the hero leaves the viewport.
-        if (header) {
-          document.body.classList.toggle('nav-over-hero', currentTop > 30 && header.getBoundingClientRect().bottom > 0);
-        } else {
-          document.body.classList.remove('nav-over-hero');
-        }
 
         if (header && !prefersReducedMotion()) {
           header.style.setProperty('--hero-scroll-shift', Math.min(currentTop * 0.08, 34).toFixed(2) + 'px');
@@ -391,6 +404,7 @@
   function boot() {
     initHeroElements();
     initHeroParticles();
+    initRecentPostCardLinks();
     initScrollReveal();
     initTocOffset();
     initNavState();

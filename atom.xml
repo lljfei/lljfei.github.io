@@ -10,7 +10,7 @@
   <rights>All rights reserved 2026, 李神</rights>
   <subtitle>保持热爱，奔赴山海</subtitle>
   <title>李神</title>
-  <updated>2026-08-26T11:45:39.645Z</updated>
+  <updated>2026-08-27T00:48:49.368Z</updated>
   <entry>
     <author>
       <name>李神</name>
@@ -32,7 +32,7 @@
 <p>如何将外界的信息洪流沉淀为属于自己的「数字第二大脑（Second Brain）」？这是我近年来一直在实践和反思的核心课题。</p>]]>
     </summary>
     <title>思考的复利：构建个人知识管理与持续输出闭环</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
   <entry>
     <author>
@@ -55,7 +55,7 @@
 <p>本文整理了我长期迭代沉淀下来的开发效率配置方案，涵盖 <strong>Windows Terminal、PowerShell 增强、VS Code 核心插件链与 Git 别名自动化</strong>。</p>]]>
     </summary>
     <title>程序员的高效数字花园：VS Code、命令行与自动化神兵利器</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
   <entry>
     <author>
@@ -78,7 +78,7 @@
 <p>站在 2026 年的视角回望，前端工程化已经不再局限于单纯的打包与混淆，而是贯穿了<strong>开发体验（DX）、端到端类型安全（End-to-End Type Safety）、智能混合渲染（Hybrid Rendering）以及多包单体仓库（Monorepo）</strong>的全链路体系。</p>]]>
     </summary>
     <title>2026 前端工程化演进全景：从构建范式到全栈架构最佳实践</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
   <entry>
     <author>
@@ -102,7 +102,7 @@
 <p>本文结合我近期的实际工程落地经验，详细拆解如何搭建一套高可用、低幻觉的 AI Agent 研发协作工作流。</p>]]>
     </summary>
     <title>从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
   <entry>
     <author>
@@ -123,7 +123,7 @@
 <h2 id="技术选型"><a href="#技术选型" class="headerlink"]]>
     </summary>
     <title>本站搭建记录：Hexo + Butterfly + GitHub Pages</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
   <entry>
     <author>
@@ -143,7 +143,7 @@
 <h2 id="标题与段落"><a href="#标题与段落" class="headerlink"]]>
     </summary>
     <title>Markdown 写作速查 —— 在博客上能用到的一切排版</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
   <entry>
     <author>
@@ -164,6 +164,6 @@
 <h2 id="为什么写博客"><a href="#为什么写博客"]]>
     </summary>
     <title>开博大吉！欢迎来到李神的小站</title>
-    <updated>2026-08-26T11:45:39.645Z</updated>
+    <updated>2026-08-27T00:48:49.368Z</updated>
   </entry>
 </feed>
