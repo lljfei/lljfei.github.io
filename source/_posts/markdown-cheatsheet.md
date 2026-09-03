@@ -1,6 +1,7 @@
 ---
 title: Markdown 写作速查 —— 在博客上能用到的一切排版
 date: 2026-08-26 11:00:00
+description: '全网实用的 Markdown 写作与排版速查指南，涵盖常用文字样式、层级标题、表格、代码高亮、KaTeX 数学公式与 Mermaid 流程图的完整语法与展示示例。'
 tags:
   - Markdown
   - 写作

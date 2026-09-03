@@ -236,3 +236,13 @@ inject:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
     - <script src="/js/custom.js"></script>
+
+# ---------------- 搜索引擎站长平台验证 ----------------
+# 获取各平台验证码后取消注释并填入 content 即可：
+# site_verification:
+#   - name: google-site-verification
+#     content: YOUR_GOOGLE_CONSOLE_CODE
+#   - name: msvalidate.01
+#     content: YOUR_BING_VERIFICATION_CODE
+#   - name: baidu-site-verification
+#     content: YOUR_BAIDU_CODE

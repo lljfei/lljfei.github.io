@@ -1,6 +1,7 @@
 ---
 title: 程序员的高效数字花园：VS Code、命令行与自动化神兵利器
 date: 2026-08-26 15:00:00
+description: '精选程序员高效生产力工具箱，涵盖 Windows Terminal 美化、PowerShell 增强、VS Code 核心插件链推荐与 Git 别名自动化技巧，打造极速流畅的编码环境。'
 tags:
   - 效率
   - 终端

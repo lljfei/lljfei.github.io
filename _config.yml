@@ -17,8 +17,8 @@ url: https://lljfei.github.io
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 pretty_urls:
-  trailing_index: true # Set to false to remove trailing 'index.html' from permalinks
-  trailing_html: true # Set to false to remove trailing '.html' from permalinks
+  trailing_index: false # Set to false to remove trailing 'index.html' from permalinks
+  trailing_html: false # Set to false to remove trailing '.html' from permalinks
 
 # Directory
 source_dir: source
@@ -129,3 +129,12 @@ sitemap:
 deploy:
   type: ''
 
+
+# Markdown Renderer (hexo-renderer-marked)
+marked:
+  prependRoot: true
+  postAsset: false
+  external_link:
+    enable: true
+    exclude: []
+    nofollow: true

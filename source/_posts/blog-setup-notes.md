@@ -1,6 +1,7 @@
 ---
 title: 本站搭建记录：Hexo + Butterfly + GitHub Pages
 date: 2026-08-26 12:00:00
+description: '详细记录基于 Hexo 8、Butterfly 主题与 GitHub Pages 从零搭建个人技术独立博客的完整过程，包含环境配置、主题深度定制与自动化 CI/CD 部署心得。'
 tags:
   - Hexo
   - Butterfly

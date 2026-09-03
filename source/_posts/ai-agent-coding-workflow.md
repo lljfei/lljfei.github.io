@@ -1,6 +1,7 @@
 ---
 title: 从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考
 date: 2026-08-26 14:00:00
+description: '深入探讨从 Copilot 辅助编码到自主智能体（Agentic Workflow）协作范式的演进，拆解感知、规划、工具执行与反思校验四大支柱，分享一套提效 300% 的 AI Agent 研发实战工作流。'
 tags:
   - AI
   - Agent
