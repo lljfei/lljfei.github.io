@@ -1,13 +1,14 @@
-﻿User-agent: *
+User-agent: *
 Allow: /
 Allow: /archives/
 Allow: /categories/
 Allow: /tags/
 Allow: /about/
 Allow: /link/
+Allow: /css/
+Allow: /js/
+Allow: /img/
 
-Disallow: /js/
-Disallow: /css/
 Disallow: /fonts/
 
 Sitemap: https://lljfei.github.io/sitemap.xml
