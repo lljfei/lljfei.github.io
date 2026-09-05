@@ -11,6 +11,24 @@
   </url>
   
   <url>
+    <loc>https://lljfei.github.io/link/</loc>
+    
+    <lastmod>2026-09-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/2026/08/26/ai-agent-coding-workflow/</loc>
+    
+    <lastmod>2026-09-05</lastmod>
+    
+    <changefreq>monthly</changefreq>
+    <priority>0.6</priority>
+  </url>
+  
+  <url>
     <loc>https://lljfei.github.io/2026/08/26/blog-setup-notes/</loc>
     
     <lastmod>2026-09-05</lastmod>
@@ -20,7 +38,7 @@
   </url>
   
   <url>
-    <loc>https://lljfei.github.io/2026/08/26/hello-lishen/</loc>
+    <loc>https://lljfei.github.io/2026/08/26/developer-productivity-toolkit/</loc>
     
     <lastmod>2026-09-05</lastmod>
     
@@ -29,7 +47,7 @@
   </url>
   
   <url>
-    <loc>https://lljfei.github.io/2026/08/26/developer-productivity-toolkit/</loc>
+    <loc>https://lljfei.github.io/2026/08/26/hello-lishen/</loc>
     
     <lastmod>2026-09-05</lastmod>
     
@@ -65,15 +83,6 @@
   </url>
   
   <url>
-    <loc>https://lljfei.github.io/2026/08/26/ai-agent-coding-workflow/</loc>
-    
-    <lastmod>2026-09-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
-  <url>
     <loc>https://lljfei.github.io/about/</loc>
     
     <lastmod>2026-09-05</lastmod>
@@ -91,15 +100,6 @@
     <priority>0.6</priority>
   </url>
   
-  <url>
-    <loc>https://lljfei.github.io/link/</loc>
-    
-    <lastmod>2026-09-05</lastmod>
-    
-    <changefreq>monthly</changefreq>
-    <priority>0.6</priority>
-  </url>
-  
 
   <url>
     <loc>https://lljfei.github.io/</loc>
@@ -108,6 +108,41 @@
     <priority>1.0</priority>
   </url>
 
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/AI/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/Agent/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
   
   <url>
     <loc>https://lljfei.github.io/tags/Hexo/</loc>
@@ -125,20 +160,6 @@
   
   <url>
     <loc>https://lljfei.github.io/tags/%E5%BB%BA%E7%AB%99/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lljfei.github.io/tags/%E9%9A%8F%E7%AC%94/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lljfei.github.io/tags/%E5%85%AC%E5%91%8A/</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -174,6 +195,20 @@
   
   <url>
     <loc>https://lljfei.github.io/tags/Windows/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/%E9%9A%8F%E7%AC%94/</loc>
+    <lastmod>2026-09-05</lastmod>
+    <changefreq>weekly</changefreq>
+    <priority>0.2</priority>
+  </url>
+  
+  <url>
+    <loc>https://lljfei.github.io/tags/%E5%85%AC%E5%91%8A/</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
@@ -256,41 +291,6 @@
     <priority>0.2</priority>
   </url>
   
-  <url>
-    <loc>https://lljfei.github.io/tags/AI/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lljfei.github.io/tags/Agent/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lljfei.github.io/tags/%E6%95%88%E7%8E%87%E5%B7%A5%E5%85%B7/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lljfei.github.io/tags/%E5%B7%A5%E4%BD%9C%E6%B5%81/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
-  <url>
-    <loc>https://lljfei.github.io/tags/%E5%BC%80%E5%8F%91%E5%AE%9E%E8%B7%B5/</loc>
-    <lastmod>2026-09-05</lastmod>
-    <changefreq>weekly</changefreq>
-    <priority>0.2</priority>
-  </url>
-  
 
   
   <url>
@@ -301,14 +301,14 @@
   </url>
   
   <url>
-    <loc>https://lljfei.github.io/categories/%E7%94%9F%E6%B4%BB%E9%9A%8F%E7%AC%94/</loc>
+    <loc>https://lljfei.github.io/categories/%E5%B7%A5%E5%85%B7%E6%8A%98%E8%85%BE/</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>
   </url>
   
   <url>
-    <loc>https://lljfei.github.io/categories/%E5%B7%A5%E5%85%B7%E6%8A%98%E8%85%BE/</loc>
+    <loc>https://lljfei.github.io/categories/%E7%94%9F%E6%B4%BB%E9%9A%8F%E7%AC%94/</loc>
     <lastmod>2026-09-05</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.2</priority>

@@ -1,6 +1,67 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
+    <title>从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考</title>
+    <url>/2026/08/26/ai-agent-coding-workflow/</url>
+    <content><![CDATA[<p>在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为<strong>「自主智能体协作（Agentic Workflow 模式）」</strong>。</p>
+<p>过去我们只是把 AI 当作查阅语法的加强版搜索引擎；而现在，一个配置得当的 AI Agent 能够理解整套工程上下文、自主分析代码仓库、规划多步重构方案、编写测试用例并完成自动化校验。</p>
+<p>本文结合我近期的实际工程落地经验，详细拆解如何搭建一套高可用、低幻觉的 AI Agent 研发协作工作流。</p>
+<span id="more"></span>
+
+<h2 id="1-协作范式的演进：从单轮-Prompt-到-Agent-协同"><a href="#1-协作范式的演进：从单轮-Prompt-到-Agent-协同" class="headerlink" title="1. 协作范式的演进：从单轮 Prompt 到 Agent 协同"></a>1. 协作范式的演进：从单轮 Prompt 到 Agent 协同</h2><p>传统的一问一答模式在面对复杂业务逻辑时极容易遭遇「幻觉」和「上下文丢失」。现代 Agent 架构通过引入<strong>感知（Perception）</strong>、<strong>规划（Planning）</strong>、<strong>工具执行（Action）与反思校验（Reflection）</strong>形成了完整的反馈回路。</p>
+<pre><code class="highlight mermaid">flowchart TD
+    A[用户提出复杂需求] --&gt; B[任务拆解与架构规划]
+    B --&gt; C&#123;是否需要代码库调研?&#125;
+    C -- 是 --&gt; D[代码检索与上下文分析]
+    C -- 否 --&gt; E[生成实施计划]
+    D --&gt; E
+    E --&gt; F[执行文件读写与命令修改]
+    F --&gt; G[自动化测试与语法校验]
+    G -- 失败 --&gt; H[捕获错误日志并自我修复]
+    H --&gt; F
+    G -- 成功 --&gt; I[生成改动总结与审核报告]</code></pre>
+
+<h2 id="2-核心四大支柱"><a href="#2-核心四大支柱" class="headerlink" title="2. 核心四大支柱"></a>2. 核心四大支柱</h2><h3 id="2-1-上下文注入与代码理解-Context-Management"><a href="#2-1-上下文注入与代码理解-Context-Management" class="headerlink" title="2.1 上下文注入与代码理解 (Context Management)"></a>2.1 上下文注入与代码理解 (Context Management)</h3><p>Agent 能否给出精准改动的关键在于<strong>高质量的上下文</strong>。</p>
+<ul>
+<li><strong>项目结构与规范文件</strong>：在根目录提供精准的规则文档（如 <code>CLAUDE.md</code>、<code>.cursorrules</code> 或 Agent 系统配置），声明运行命令、代码风格与目录约定。</li>
+<li><strong>按需检索而非全量灌入</strong>：利用 AST 解析或高性能文本检索（如 ripgrep &#x2F; fd）仅提取目标函数与调用链，避免消耗过多上下文窗口导致注意力分散。</li>
+</ul>
+<h3 id="2-2-规划先行-Planning-Mode"><a href="#2-2-规划先行-Planning-Mode" class="headerlink" title="2.2 规划先行 (Planning Mode)"></a>2.2 规划先行 (Planning Mode)</h3><p>面对跨越 3 个以上文件或涉及架构调整的需求，坚决执行「规划 - 确认 - 执行」三步走：</p>
+<ol>
+<li><strong>Research 阶段</strong>：只读分析，定位核心接口与影响面；</li>
+<li><strong>Plan 阶段</strong>：输出详细的技术实现文档（包含改动文件、接口设计、破坏性变更与回滚预案）；</li>
+<li><strong>Execution 阶段</strong>：按计划逐步编码，严禁无预案的盲目重构。</li>
+</ol>
+<h3 id="2-3-工具集集成-Tooling-Integration"><a href="#2-3-工具集集成-Tooling-Integration" class="headerlink" title="2.3 工具集集成 (Tooling Integration)"></a>2.3 工具集集成 (Tooling Integration)</h3><p>赋予 Agent 最小必要且安全的系统能力：</p>
+<ul>
+<li>文件查看与精准行替换（避免大文件全量覆盖导致的缩进&#x2F;格式破坏）；</li>
+<li>本地构建与语法检查命令（TypeScript 类型检查、Linter、Unit Test）；</li>
+<li>外部文档查询与 API 检索。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 典型的自动化验证组合</span></span><br><span class="line">npm run lint &amp;&amp; npm run type-check &amp;&amp; npm run <span class="built_in">test</span>:unit</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-反思与闭环纠错-Self-Correction-Loop"><a href="#2-4-反思与闭环纠错-Self-Correction-Loop" class="headerlink" title="2.4 反思与闭环纠错 (Self-Correction Loop)"></a>2.4 反思与闭环纠错 (Self-Correction Loop)</h3><p>当构建或测试报错时，不要让人类开发者充当传话筒。将编译器的 stderr 直接反馈给 Agent，让其对照报错行号和调用栈自愈：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 示例：类型守卫与防御性代码重构</span></span><br><span class="line">interface <span class="title class_">UserProfile</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: string;</span><br><span class="line">  <span class="attr">name</span>: string;</span><br><span class="line">  settings?: &#123;</span><br><span class="line">    theme?: <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化前：可能抛出 TypeError</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getTheme</span>(<span class="params">user: UserProfile</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>.<span class="property">theme</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化后：Agent 自愈加入可选链与兜底默认值</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getThemeSafe</span>(<span class="params">user: UserProfile</span>): <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>?.<span class="property">theme</span> ?? <span class="string">&#x27;light&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-常见避坑指南"><a href="#3-常见避坑指南" class="headerlink" title="3. 常见避坑指南"></a>3. 常见避坑指南</h2><ol>
+<li><strong>避免单次下达过于宏大的模糊任务</strong>：将「重构整个用户模块」细化为「提取用户状态管理 Store」、「重构用户资料表单校验」等独立小步骤。</li>
+<li><strong>保留人类掌控权（Human in the Loop）</strong>：涉及数据库变更、生产部署和密钥管理的操作，必须设置人类二次确认机制。</li>
+<li><strong>保持测试用例覆盖</strong>：AI 写出的代码必须有单元测试做底线保障，测试是检验 Agent 输出质量的最佳试金石。</li>
+</ol>
+<h2 id="4-总结与展望"><a href="#4-总结与展望" class="headerlink" title="4. 总结与展望"></a>4. 总结与展望</h2><p>AI 不会取代开发者，但<strong>善用 AI Agent 的开发者正在以数倍的效率拉开差距</strong>。将重复性的样板代码、繁琐的类型补齐和回归测试交给 Agent 处理，开发者才能将最宝贵的精力聚焦在核心架构设计、业务洞察与技术创新上。</p>
+]]></content>
+      <categories>
+        <category>技术笔记</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>Agent</tag>
+        <tag>效率工具</tag>
+        <tag>工作流</tag>
+        <tag>开发实践</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>本站搭建记录：Hexo + Butterfly + GitHub Pages</title>
     <url>/2026/08/26/blog-setup-notes/</url>
     <content><![CDATA[<p>这篇记录一下本博客（李神的小站）的完整搭建过程，环境为 Windows 11 + Node.js 22。</p>
@@ -67,6 +128,45 @@
       </tags>
   </entry>
   <entry>
+    <title>程序员的高效数字花园：VS Code、命令行与自动化神兵利器</title>
+    <url>/2026/08/26/developer-productivity-toolkit/</url>
+    <content><![CDATA[<p>工欲善其事，必先利其器。打造一个赏心悦目且响应敏捷的本地开发环境，不仅能极大提升编码舒适度，更是每一位工程师日常工作中的一种乐趣。</p>
+<p>本文整理了我长期迭代沉淀下来的开发效率配置方案，涵盖 <strong>Windows Terminal、PowerShell 增强、VS Code 核心插件链与 Git 别名自动化</strong>。</p>
+<span id="more"></span>
+
+<h2 id="1-终端美化与极速体验"><a href="#1-终端美化与极速体验" class="headerlink" title="1. 终端美化与极速体验"></a>1. 终端美化与极速体验</h2><p>无论是在 Windows 还是 macOS 下，一个现代化的终端配置是高效工作的第一步。</p>
+<h3 id="1-1-Windows-Terminal-PowerShell-7-Starship"><a href="#1-1-Windows-Terminal-PowerShell-7-Starship" class="headerlink" title="1.1 Windows Terminal + PowerShell 7 + Starship"></a>1.1 Windows Terminal + PowerShell 7 + Starship</h3><ul>
+<li><strong>终端外壳</strong>：Windows Terminal Preview，开启 GPU 硬件加速与毛玻璃亚克力效果。</li>
+<li><strong>跨平台提示符</strong>：<a href="https://starship.rs/" target="_blank" rel="noopener external nofollow noreferrer">Starship</a>，极简、极速、无侵入式显示 Git 分支、Node 版本与执行耗时。</li>
+</ul>
+<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/.config/starship.toml 极简配置</span></span><br><span class="line"><span class="attr">add_newline</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[character]</span></span><br><span class="line"><span class="attr">success_symbol</span> = <span class="string">&quot;[➜](bold green)&quot;</span></span><br><span class="line"><span class="attr">error_symbol</span> = <span class="string">&quot;[✗](bold red)&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[directory]</span></span><br><span class="line"><span class="attr">truncation_length</span> = <span class="number">3</span></span><br><span class="line"><span class="attr">truncate_to_repo</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="section">[git_branch]</span></span><br><span class="line"><span class="attr">symbol</span> = <span class="string">&quot;🌱 &quot;</span></span><br><span class="line"><span class="attr">style</span> = <span class="string">&quot;bold purple&quot;</span></span><br></pre></td></tr></table></figure>
+
+<h3 id="1-2-常用命令行别名-PowerShell-Profile"><a href="#1-2-常用命令行别名-PowerShell-Profile" class="headerlink" title="1.2 常用命令行别名 (PowerShell Profile)"></a>1.2 常用命令行别名 (PowerShell Profile)</h3><p>在 <code>$PROFILE</code> 文件中加入快捷别名，告别冗长命令输入：</p>
+<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 编辑 PowerShell Profile: notepad $PROFILE</span></span><br><span class="line"><span class="built_in">Set-Alias</span> <span class="literal">-Name</span> g <span class="literal">-Value</span> git</span><br><span class="line"><span class="built_in">Set-Alias</span> <span class="literal">-Name</span> ll <span class="literal">-Value</span> <span class="built_in">Get-ChildItem</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 快速启动与清空</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span></span> &#123; <span class="built_in">Clear-Host</span> &#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gs</span></span> &#123; git status <span class="literal">--short</span> &#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gp</span></span> &#123; git push &#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gpl</span></span> &#123; git pull &#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="2-VS-Code-核心效率插件推荐"><a href="#2-VS-Code-核心效率插件推荐" class="headerlink" title="2. VS Code 核心效率插件推荐"></a>2. VS Code 核心效率插件推荐</h2><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">├── 编码辅助</span><br><span class="line">│   ├── Error Lens (直接在代码行尾显示编译报错，极度治愈)</span><br><span class="line">│   ├── Pretty TypeScript Errors (将晦涩的泛型错误格式化为易读的卡片)</span><br><span class="line">│   └── Todo Tree (全景收集代码中的 TODO / FIXME 标记)</span><br><span class="line">├── 视觉美化</span><br><span class="line">│   ├── One Dark Pro / Tokyo Night (经典且护眼的高对比主题)</span><br><span class="line">│   └── Material Icon Theme (最全的文件树图标库)</span><br><span class="line">└── Git 协同</span><br><span class="line">    ├── GitLens (查看每行代码的作者与 commit 变更历史)</span><br><span class="line">    └── Git Graph (可视化分支树与 Merge 历史图)</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-Git-进阶别名与自动化"><a href="#3-Git-进阶别名与自动化" class="headerlink" title="3. Git 进阶别名与自动化"></a>3. Git 进阶别名与自动化</h2><p>修改 <code>~/.gitconfig</code>，让日常 Git 操作行云流水：</p>
+<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[alias]</span></span><br><span class="line">    <span class="attr">st</span> = status -sb</span><br><span class="line">    <span class="attr">co</span> = checkout</span><br><span class="line">    <span class="attr">br</span> = branch</span><br><span class="line">    <span class="attr">ci</span> = commit</span><br><span class="line">    <span class="attr">lg</span> = log --color --graph --pretty=format:<span class="string">&#x27;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&#x27;</span> --abbrev-commit</span><br><span class="line">    <span class="attr">undo</span> = reset --soft HEAD~<span class="number">1</span></span><br><span class="line">    <span class="attr">amend</span> = commit --amend --<span class="literal">no</span>-edit</span><br></pre></td></tr></table></figure>
+
+<p>运行 <code>git lg</code> 即可输出炫酷且直观的彩色彩色提交历史树。</p>
+<h2 id="4-自动化脚本思维"><a href="#4-自动化脚本思维" class="headerlink" title="4. 自动化脚本思维"></a>4. 自动化脚本思维</h2><p>任何重复超过 3 次的手工操作，都应该写成一行脚本。<br>例如在 Hexo 博客根目录配置的 npm scripts：</p>
+<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;clean&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo clean&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo generate&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo server&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;new:post&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo new post&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
+
+<p>保持对工具的好奇心，持续优化你的工作台，你会发现编程的世界越来越轻松顺手。</p>
+]]></content>
+      <categories>
+        <category>工具折腾</category>
+      </categories>
+      <tags>
+        <tag>效率</tag>
+        <tag>终端</tag>
+        <tag>VSCode</tag>
+        <tag>工具</tag>
+        <tag>Windows</tag>
+      </tags>
+  </entry>
+  <entry>
     <title>开博大吉！欢迎来到李神的小站</title>
     <url>/2026/08/26/hello-lishen/</url>
     <content><![CDATA[<p>大家好，我是 <strong>李神</strong>。</p>
@@ -114,45 +214,6 @@
       <tags>
         <tag>随笔</tag>
         <tag>公告</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>程序员的高效数字花园：VS Code、命令行与自动化神兵利器</title>
-    <url>/2026/08/26/developer-productivity-toolkit/</url>
-    <content><![CDATA[<p>工欲善其事，必先利其器。打造一个赏心悦目且响应敏捷的本地开发环境，不仅能极大提升编码舒适度，更是每一位工程师日常工作中的一种乐趣。</p>
-<p>本文整理了我长期迭代沉淀下来的开发效率配置方案，涵盖 <strong>Windows Terminal、PowerShell 增强、VS Code 核心插件链与 Git 别名自动化</strong>。</p>
-<span id="more"></span>
-
-<h2 id="1-终端美化与极速体验"><a href="#1-终端美化与极速体验" class="headerlink" title="1. 终端美化与极速体验"></a>1. 终端美化与极速体验</h2><p>无论是在 Windows 还是 macOS 下，一个现代化的终端配置是高效工作的第一步。</p>
-<h3 id="1-1-Windows-Terminal-PowerShell-7-Starship"><a href="#1-1-Windows-Terminal-PowerShell-7-Starship" class="headerlink" title="1.1 Windows Terminal + PowerShell 7 + Starship"></a>1.1 Windows Terminal + PowerShell 7 + Starship</h3><ul>
-<li><strong>终端外壳</strong>：Windows Terminal Preview，开启 GPU 硬件加速与毛玻璃亚克力效果。</li>
-<li><strong>跨平台提示符</strong>：<a href="https://starship.rs/" target="_blank" rel="noopener external nofollow noreferrer">Starship</a>，极简、极速、无侵入式显示 Git 分支、Node 版本与执行耗时。</li>
-</ul>
-<figure class="highlight toml"><table><tr><td class="code"><pre><span class="line"><span class="comment"># ~/.config/starship.toml 极简配置</span></span><br><span class="line"><span class="attr">add_newline</span> = <span class="literal">false</span></span><br><span class="line"></span><br><span class="line"><span class="section">[character]</span></span><br><span class="line"><span class="attr">success_symbol</span> = <span class="string">&quot;[➜](bold green)&quot;</span></span><br><span class="line"><span class="attr">error_symbol</span> = <span class="string">&quot;[✗](bold red)&quot;</span></span><br><span class="line"></span><br><span class="line"><span class="section">[directory]</span></span><br><span class="line"><span class="attr">truncation_length</span> = <span class="number">3</span></span><br><span class="line"><span class="attr">truncate_to_repo</span> = <span class="literal">true</span></span><br><span class="line"></span><br><span class="line"><span class="section">[git_branch]</span></span><br><span class="line"><span class="attr">symbol</span> = <span class="string">&quot;🌱 &quot;</span></span><br><span class="line"><span class="attr">style</span> = <span class="string">&quot;bold purple&quot;</span></span><br></pre></td></tr></table></figure>
-
-<h3 id="1-2-常用命令行别名-PowerShell-Profile"><a href="#1-2-常用命令行别名-PowerShell-Profile" class="headerlink" title="1.2 常用命令行别名 (PowerShell Profile)"></a>1.2 常用命令行别名 (PowerShell Profile)</h3><p>在 <code>$PROFILE</code> 文件中加入快捷别名，告别冗长命令输入：</p>
-<figure class="highlight powershell"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 编辑 PowerShell Profile: notepad $PROFILE</span></span><br><span class="line"><span class="built_in">Set-Alias</span> <span class="literal">-Name</span> g <span class="literal">-Value</span> git</span><br><span class="line"><span class="built_in">Set-Alias</span> <span class="literal">-Name</span> ll <span class="literal">-Value</span> <span class="built_in">Get-ChildItem</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># 快速启动与清空</span></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">c</span></span> &#123; <span class="built_in">Clear-Host</span> &#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gs</span></span> &#123; git status <span class="literal">--short</span> &#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gp</span></span> &#123; git push &#125;</span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">gpl</span></span> &#123; git pull &#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="2-VS-Code-核心效率插件推荐"><a href="#2-VS-Code-核心效率插件推荐" class="headerlink" title="2. VS Code 核心效率插件推荐"></a>2. VS Code 核心效率插件推荐</h2><figure class="highlight text"><table><tr><td class="code"><pre><span class="line">├── 编码辅助</span><br><span class="line">│   ├── Error Lens (直接在代码行尾显示编译报错，极度治愈)</span><br><span class="line">│   ├── Pretty TypeScript Errors (将晦涩的泛型错误格式化为易读的卡片)</span><br><span class="line">│   └── Todo Tree (全景收集代码中的 TODO / FIXME 标记)</span><br><span class="line">├── 视觉美化</span><br><span class="line">│   ├── One Dark Pro / Tokyo Night (经典且护眼的高对比主题)</span><br><span class="line">│   └── Material Icon Theme (最全的文件树图标库)</span><br><span class="line">└── Git 协同</span><br><span class="line">    ├── GitLens (查看每行代码的作者与 commit 变更历史)</span><br><span class="line">    └── Git Graph (可视化分支树与 Merge 历史图)</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-Git-进阶别名与自动化"><a href="#3-Git-进阶别名与自动化" class="headerlink" title="3. Git 进阶别名与自动化"></a>3. Git 进阶别名与自动化</h2><p>修改 <code>~/.gitconfig</code>，让日常 Git 操作行云流水：</p>
-<figure class="highlight ini"><table><tr><td class="code"><pre><span class="line"><span class="section">[alias]</span></span><br><span class="line">    <span class="attr">st</span> = status -sb</span><br><span class="line">    <span class="attr">co</span> = checkout</span><br><span class="line">    <span class="attr">br</span> = branch</span><br><span class="line">    <span class="attr">ci</span> = commit</span><br><span class="line">    <span class="attr">lg</span> = log --color --graph --pretty=format:<span class="string">&#x27;%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(%cr) %C(bold blue)&lt;%an&gt;%Creset&#x27;</span> --abbrev-commit</span><br><span class="line">    <span class="attr">undo</span> = reset --soft HEAD~<span class="number">1</span></span><br><span class="line">    <span class="attr">amend</span> = commit --amend --<span class="literal">no</span>-edit</span><br></pre></td></tr></table></figure>
-
-<p>运行 <code>git lg</code> 即可输出炫酷且直观的彩色彩色提交历史树。</p>
-<h2 id="4-自动化脚本思维"><a href="#4-自动化脚本思维" class="headerlink" title="4. 自动化脚本思维"></a>4. 自动化脚本思维</h2><p>任何重复超过 3 次的手工操作，都应该写成一行脚本。<br>例如在 Hexo 博客根目录配置的 npm scripts：</p>
-<figure class="highlight json"><table><tr><td class="code"><pre><span class="line"><span class="punctuation">&#123;</span></span><br><span class="line">  <span class="attr">&quot;scripts&quot;</span><span class="punctuation">:</span> <span class="punctuation">&#123;</span></span><br><span class="line">    <span class="attr">&quot;clean&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo clean&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;build&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo generate&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;server&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo server&quot;</span><span class="punctuation">,</span></span><br><span class="line">    <span class="attr">&quot;new:post&quot;</span><span class="punctuation">:</span> <span class="string">&quot;hexo new post&quot;</span></span><br><span class="line">  <span class="punctuation">&#125;</span></span><br><span class="line"><span class="punctuation">&#125;</span></span><br></pre></td></tr></table></figure>
-
-<p>保持对工具的好奇心，持续优化你的工作台，你会发现编程的世界越来越轻松顺手。</p>
-]]></content>
-      <categories>
-        <category>工具折腾</category>
-      </categories>
-      <tags>
-        <tag>效率</tag>
-        <tag>终端</tag>
-        <tag>VSCode</tag>
-        <tag>工具</tag>
-        <tag>Windows</tag>
       </tags>
   </entry>
   <entry>
@@ -347,67 +408,6 @@
         <tag>知识管理</tag>
         <tag>思考</tag>
         <tag>方法论</tag>
-      </tags>
-  </entry>
-  <entry>
-    <title>从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考</title>
-    <url>/2026/08/26/ai-agent-coding-workflow/</url>
-    <content><![CDATA[<p>在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为<strong>「自主智能体协作（Agentic Workflow 模式）」</strong>。</p>
-<p>过去我们只是把 AI 当作查阅语法的加强版搜索引擎；而现在，一个配置得当的 AI Agent 能够理解整套工程上下文、自主分析代码仓库、规划多步重构方案、编写测试用例并完成自动化校验。</p>
-<p>本文结合我近期的实际工程落地经验，详细拆解如何搭建一套高可用、低幻觉的 AI Agent 研发协作工作流。</p>
-<span id="more"></span>
-
-<h2 id="1-协作范式的演进：从单轮-Prompt-到-Agent-协同"><a href="#1-协作范式的演进：从单轮-Prompt-到-Agent-协同" class="headerlink" title="1. 协作范式的演进：从单轮 Prompt 到 Agent 协同"></a>1. 协作范式的演进：从单轮 Prompt 到 Agent 协同</h2><p>传统的一问一答模式在面对复杂业务逻辑时极容易遭遇「幻觉」和「上下文丢失」。现代 Agent 架构通过引入<strong>感知（Perception）</strong>、<strong>规划（Planning）</strong>、<strong>工具执行（Action）与反思校验（Reflection）</strong>形成了完整的反馈回路。</p>
-<pre><code class="highlight mermaid">flowchart TD
-    A[用户提出复杂需求] --&gt; B[任务拆解与架构规划]
-    B --&gt; C&#123;是否需要代码库调研?&#125;
-    C -- 是 --&gt; D[代码检索与上下文分析]
-    C -- 否 --&gt; E[生成实施计划]
-    D --&gt; E
-    E --&gt; F[执行文件读写与命令修改]
-    F --&gt; G[自动化测试与语法校验]
-    G -- 失败 --&gt; H[捕获错误日志并自我修复]
-    H --&gt; F
-    G -- 成功 --&gt; I[生成改动总结与审核报告]</code></pre>
-
-<h2 id="2-核心四大支柱"><a href="#2-核心四大支柱" class="headerlink" title="2. 核心四大支柱"></a>2. 核心四大支柱</h2><h3 id="2-1-上下文注入与代码理解-Context-Management"><a href="#2-1-上下文注入与代码理解-Context-Management" class="headerlink" title="2.1 上下文注入与代码理解 (Context Management)"></a>2.1 上下文注入与代码理解 (Context Management)</h3><p>Agent 能否给出精准改动的关键在于<strong>高质量的上下文</strong>。</p>
-<ul>
-<li><strong>项目结构与规范文件</strong>：在根目录提供精准的规则文档（如 <code>CLAUDE.md</code>、<code>.cursorrules</code> 或 Agent 系统配置），声明运行命令、代码风格与目录约定。</li>
-<li><strong>按需检索而非全量灌入</strong>：利用 AST 解析或高性能文本检索（如 ripgrep &#x2F; fd）仅提取目标函数与调用链，避免消耗过多上下文窗口导致注意力分散。</li>
-</ul>
-<h3 id="2-2-规划先行-Planning-Mode"><a href="#2-2-规划先行-Planning-Mode" class="headerlink" title="2.2 规划先行 (Planning Mode)"></a>2.2 规划先行 (Planning Mode)</h3><p>面对跨越 3 个以上文件或涉及架构调整的需求，坚决执行「规划 - 确认 - 执行」三步走：</p>
-<ol>
-<li><strong>Research 阶段</strong>：只读分析，定位核心接口与影响面；</li>
-<li><strong>Plan 阶段</strong>：输出详细的技术实现文档（包含改动文件、接口设计、破坏性变更与回滚预案）；</li>
-<li><strong>Execution 阶段</strong>：按计划逐步编码，严禁无预案的盲目重构。</li>
-</ol>
-<h3 id="2-3-工具集集成-Tooling-Integration"><a href="#2-3-工具集集成-Tooling-Integration" class="headerlink" title="2.3 工具集集成 (Tooling Integration)"></a>2.3 工具集集成 (Tooling Integration)</h3><p>赋予 Agent 最小必要且安全的系统能力：</p>
-<ul>
-<li>文件查看与精准行替换（避免大文件全量覆盖导致的缩进&#x2F;格式破坏）；</li>
-<li>本地构建与语法检查命令（TypeScript 类型检查、Linter、Unit Test）；</li>
-<li>外部文档查询与 API 检索。</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 典型的自动化验证组合</span></span><br><span class="line">npm run lint &amp;&amp; npm run type-check &amp;&amp; npm run <span class="built_in">test</span>:unit</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-4-反思与闭环纠错-Self-Correction-Loop"><a href="#2-4-反思与闭环纠错-Self-Correction-Loop" class="headerlink" title="2.4 反思与闭环纠错 (Self-Correction Loop)"></a>2.4 反思与闭环纠错 (Self-Correction Loop)</h3><p>当构建或测试报错时，不要让人类开发者充当传话筒。将编译器的 stderr 直接反馈给 Agent，让其对照报错行号和调用栈自愈：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 示例：类型守卫与防御性代码重构</span></span><br><span class="line">interface <span class="title class_">UserProfile</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: string;</span><br><span class="line">  <span class="attr">name</span>: string;</span><br><span class="line">  settings?: &#123;</span><br><span class="line">    theme?: <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化前：可能抛出 TypeError</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getTheme</span>(<span class="params">user: UserProfile</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>.<span class="property">theme</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化后：Agent 自愈加入可选链与兜底默认值</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getThemeSafe</span>(<span class="params">user: UserProfile</span>): <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>?.<span class="property">theme</span> ?? <span class="string">&#x27;light&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-常见避坑指南"><a href="#3-常见避坑指南" class="headerlink" title="3. 常见避坑指南"></a>3. 常见避坑指南</h2><ol>
-<li><strong>避免单次下达过于宏大的模糊任务</strong>：将「重构整个用户模块」细化为「提取用户状态管理 Store」、「重构用户资料表单校验」等独立小步骤。</li>
-<li><strong>保留人类掌控权（Human in the Loop）</strong>：涉及数据库变更、生产部署和密钥管理的操作，必须设置人类二次确认机制。</li>
-<li><strong>保持测试用例覆盖</strong>：AI 写出的代码必须有单元测试做底线保障，测试是检验 Agent 输出质量的最佳试金石。</li>
-</ol>
-<h2 id="4-总结与展望"><a href="#4-总结与展望" class="headerlink" title="4. 总结与展望"></a>4. 总结与展望</h2><p>AI 不会取代开发者，但<strong>善用 AI Agent 的开发者正在以数倍的效率拉开差距</strong>。将重复性的样板代码、繁琐的类型补齐和回归测试交给 Agent 处理，开发者才能将最宝贵的精力聚焦在核心架构设计、业务洞察与技术创新上。</p>
-]]></content>
-      <categories>
-        <category>技术笔记</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-        <tag>Agent</tag>
-        <tag>效率工具</tag>
-        <tag>工作流</tag>
-        <tag>开发实践</tag>
       </tags>
   </entry>
 </search>

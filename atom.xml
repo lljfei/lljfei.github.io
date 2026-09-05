@@ -10,7 +10,7 @@
   <rights>All rights reserved 2026, 李神</rights>
   <subtitle>保持热爱，奔赴山海</subtitle>
   <title>李神</title>
-  <updated>2026-09-05T13:04:48.315Z</updated>
+  <updated>2026-09-05T15:04:32.272Z</updated>
   <entry>
     <author>
       <name>李神</name>
@@ -29,7 +29,7 @@
     <published>2026-08-26T07:30:00.000Z</published>
     <summary>探讨基于 Tiago Forte CODE 模型的个人知识管理体系（PKM），如何摆脱「收藏即学会」的陷阱，建立从信息输入、提炼加工到持续高质量输出的复利闭环。</summary>
     <title>思考的复利：构建个人知识管理与持续输出闭环</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
   <entry>
     <author>
@@ -49,7 +49,7 @@
     <published>2026-08-26T07:00:00.000Z</published>
     <summary>精选程序员高效生产力工具箱，涵盖 Windows Terminal 美化、PowerShell 增强、VS Code 核心插件链推荐与 Git 别名自动化技巧，打造极速流畅的编码环境。</summary>
     <title>程序员的高效数字花园：VS Code、命令行与自动化神兵利器</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
   <entry>
     <author>
@@ -69,7 +69,7 @@
     <published>2026-08-26T06:30:00.000Z</published>
     <summary>全面解析 2026 前端工程化技术全景，涵盖基于 Rust/Go 的原生高性能构建工具链、端到端类型安全、智能混合渲染架构演进与 Monorepo 多包单体仓库工程最佳实践。</summary>
     <title>2026 前端工程化演进全景：从构建范式到全栈架构最佳实践</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
   <entry>
     <author>
@@ -89,7 +89,7 @@
     <published>2026-08-26T06:00:00.000Z</published>
     <summary>深入探讨从 Copilot 辅助编码到自主智能体（Agentic Workflow）协作范式的演进，拆解感知、规划、工具执行与反思校验四大支柱，分享一套提效 300% 的 AI Agent 研发实战工作流。</summary>
     <title>从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
   <entry>
     <author>
@@ -107,7 +107,7 @@
     <published>2026-08-26T04:00:00.000Z</published>
     <summary>详细记录基于 Hexo 8、Butterfly 主题与 GitHub Pages 从零搭建个人技术独立博客的完整过程，包含环境配置、主题深度定制与自动化 CI/CD 部署心得。</summary>
     <title>本站搭建记录：Hexo + Butterfly + GitHub Pages</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
   <entry>
     <author>
@@ -124,7 +124,7 @@
     <published>2026-08-26T03:00:00.000Z</published>
     <summary>全网实用的 Markdown 写作与排版速查指南，涵盖常用文字样式、层级标题、表格、代码高亮、KaTeX 数学公式与 Mermaid 流程图的完整语法与展示示例。</summary>
     <title>Markdown 写作速查 —— 在博客上能用到的一切排版</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
   <entry>
     <author>
@@ -141,6 +141,6 @@
     <published>2026-08-26T02:00:00.000Z</published>
     <summary>李神的个人博客上线发刊词！分享建立独立博客的初心、知识沉淀与技术分享理念，以及未来涵盖技术笔记、工具折腾与生活思考的栏目规划。</summary>
     <title>开博大吉！欢迎来到李神的小站</title>
-    <updated>2026-09-05T13:04:48.315Z</updated>
+    <updated>2026-09-05T15:04:32.272Z</updated>
   </entry>
 </feed>
