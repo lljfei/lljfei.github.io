@@ -40,7 +40,6 @@ comments: false
 <div><span class="editorial-kicker">OPEN CHANNEL</span><h3>找到我</h3><p>欢迎交流技术实践、工具方法与那些仍然值得保持好奇的事情。</p></div>
 <div class="about-links">
 <a href="https://github.com/lljfei" target="_blank" rel="noopener"><i class="fab fa-github"></i><span>GitHub</span><small>CODE / 01</small></a>
-<a href="mailto:lishen@example.com"><i class="fas fa-envelope"></i><span>Email</span><small>WRITE / 02</small></a>
 <a href="/atom.xml" target="_blank" rel="noopener"><i class="fas fa-rss"></i><span>RSS</span><small>FOLLOW / 03</small></a>
 </div>
 </section>

@@ -41,7 +41,6 @@ theme_color:
 # ---------------- 社交链接（替换为你的真实地址） ----------------
 social:
   fab fa-github: https://github.com/lljfei || GitHub || '#24292e'
-  fas fa-envelope: mailto:lishen@example.com || Email || '#4a7dbe'
   fas fa-rss: /atom.xml || RSS || '#ffa500'
 
 # ---------------- 头像 / 图标 ----------------
@@ -53,8 +52,8 @@ avatar:
 
 # ---------------- 顶部横幅（渐变色，无需图片） ----------------
 disable_top_img: false
-default_top_img: linear-gradient(120deg, #15120f 0%, #201a14 48%, #0e1816 100%)
-index_img: linear-gradient(120deg, #15120f 0%, #201a14 48%, #0e1816 100%)
+default_top_img: "linear-gradient(120deg, #15120f 0%, #201a14 48%, #0e1816 100%)"
+index_img: "linear-gradient(120deg, #15120f 0%, #201a14 48%, #0e1816 100%)"
 index_top_img_height: 680px
 index_site_info_top: 50%
 
@@ -75,6 +74,9 @@ subtitle:
 
 # ---------------- 首页内容布局 ----------------
 index_layout: 3
+index_post_content:
+  method: 2
+  length: 160
 cover:
   index_enable: false
   aside_enable: true
@@ -162,7 +164,7 @@ aside:
     enable: true
     limit: 40
     color: false
-    orderby: random
+    orderby: name
     order: 1
   card_archives:
     enable: true
@@ -183,7 +185,7 @@ footer:
   copyright:
     enable: true
     version: false
-  custom_text: '<div class="footer-editorial-mark"><span class="footer-editorial-kicker">FIELD NOTES / LISHEN</span><strong>保持热爱，奔赴山海。</strong><span class="footer-editorial-status"><i></i> SYSTEM ONLINE</span></div><div class="footer-nav"><a href="/">首页</a><span>/</span><a href="/archives/">时间轴</a><span>/</span><a href="/categories/">分类</a><span>/</span><a href="/tags/">标签</a><span>/</span><a href="/link/">友链</a><span>/</span><a href="/about/">关于李神</a><span>/</span><a href="https://github.com/lljfei" target="_blank">GitHub</a></div><div id="footer-runtime-clock" class="footer-runtime-box">站点稳定运行计算中...</div>'
+  custom_text: '<div class="footer-editorial-mark"><span class="footer-editorial-kicker">FIELD NOTES / LISHEN</span><strong>保持热爱，奔赴山海。</strong><span class="footer-editorial-status"><i></i> SYSTEM ONLINE</span></div><div class="footer-nav"><a href="/">首页</a><span>/</span><a href="/archives/">时间轴</a><span>/</span><a href="/categories/">分类</a><span>/</span><a href="/tags/">标签</a><span>/</span><a href="/link/">友链</a><span>/</span><a href="/about/">关于李神</a><span>/</span><a href="https://github.com/lljfei" target="_blank" rel="noopener noreferrer">GitHub</a></div><div id="footer-runtime-clock" class="footer-runtime-box">站点稳定运行计算中...</div>'
 
 # ---------------- 暗色模式 ----------------
 darkmode:
