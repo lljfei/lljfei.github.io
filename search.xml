@@ -1,67 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <search>
   <entry>
-    <title>从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考</title>
-    <url>/2026/08/26/ai-agent-coding-workflow/</url>
-    <content><![CDATA[<p>在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为<strong>「自主智能体协作（Agentic Workflow 模式）」</strong>。</p>
-<p>过去我们只是把 AI 当作查阅语法的加强版搜索引擎；而现在，一个配置得当的 AI Agent 能够理解整套工程上下文、自主分析代码仓库、规划多步重构方案、编写测试用例并完成自动化校验。</p>
-<p>本文结合我近期的实际工程落地经验，详细拆解如何搭建一套高可用、低幻觉的 AI Agent 研发协作工作流。</p>
-<span id="more"></span>
-
-<h2 id="1-协作范式的演进：从单轮-Prompt-到-Agent-协同"><a href="#1-协作范式的演进：从单轮-Prompt-到-Agent-协同" class="headerlink" title="1. 协作范式的演进：从单轮 Prompt 到 Agent 协同"></a>1. 协作范式的演进：从单轮 Prompt 到 Agent 协同</h2><p>传统的一问一答模式在面对复杂业务逻辑时极容易遭遇「幻觉」和「上下文丢失」。现代 Agent 架构通过引入<strong>感知（Perception）</strong>、<strong>规划（Planning）</strong>、<strong>工具执行（Action）与反思校验（Reflection）</strong>形成了完整的反馈回路。</p>
-<pre><code class="highlight mermaid">flowchart TD
-    A[用户提出复杂需求] --&gt; B[任务拆解与架构规划]
-    B --&gt; C&#123;是否需要代码库调研?&#125;
-    C -- 是 --&gt; D[代码检索与上下文分析]
-    C -- 否 --&gt; E[生成实施计划]
-    D --&gt; E
-    E --&gt; F[执行文件读写与命令修改]
-    F --&gt; G[自动化测试与语法校验]
-    G -- 失败 --&gt; H[捕获错误日志并自我修复]
-    H --&gt; F
-    G -- 成功 --&gt; I[生成改动总结与审核报告]</code></pre>
-
-<h2 id="2-核心四大支柱"><a href="#2-核心四大支柱" class="headerlink" title="2. 核心四大支柱"></a>2. 核心四大支柱</h2><h3 id="2-1-上下文注入与代码理解-Context-Management"><a href="#2-1-上下文注入与代码理解-Context-Management" class="headerlink" title="2.1 上下文注入与代码理解 (Context Management)"></a>2.1 上下文注入与代码理解 (Context Management)</h3><p>Agent 能否给出精准改动的关键在于<strong>高质量的上下文</strong>。</p>
-<ul>
-<li><strong>项目结构与规范文件</strong>：在根目录提供精准的规则文档（如 <code>CLAUDE.md</code>、<code>.cursorrules</code> 或 Agent 系统配置），声明运行命令、代码风格与目录约定。</li>
-<li><strong>按需检索而非全量灌入</strong>：利用 AST 解析或高性能文本检索（如 ripgrep &#x2F; fd）仅提取目标函数与调用链，避免消耗过多上下文窗口导致注意力分散。</li>
-</ul>
-<h3 id="2-2-规划先行-Planning-Mode"><a href="#2-2-规划先行-Planning-Mode" class="headerlink" title="2.2 规划先行 (Planning Mode)"></a>2.2 规划先行 (Planning Mode)</h3><p>面对跨越 3 个以上文件或涉及架构调整的需求，坚决执行「规划 - 确认 - 执行」三步走：</p>
-<ol>
-<li><strong>Research 阶段</strong>：只读分析，定位核心接口与影响面；</li>
-<li><strong>Plan 阶段</strong>：输出详细的技术实现文档（包含改动文件、接口设计、破坏性变更与回滚预案）；</li>
-<li><strong>Execution 阶段</strong>：按计划逐步编码，严禁无预案的盲目重构。</li>
-</ol>
-<h3 id="2-3-工具集集成-Tooling-Integration"><a href="#2-3-工具集集成-Tooling-Integration" class="headerlink" title="2.3 工具集集成 (Tooling Integration)"></a>2.3 工具集集成 (Tooling Integration)</h3><p>赋予 Agent 最小必要且安全的系统能力：</p>
-<ul>
-<li>文件查看与精准行替换（避免大文件全量覆盖导致的缩进&#x2F;格式破坏）；</li>
-<li>本地构建与语法检查命令（TypeScript 类型检查、Linter、Unit Test）；</li>
-<li>外部文档查询与 API 检索。</li>
-</ul>
-<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 典型的自动化验证组合</span></span><br><span class="line">npm run lint &amp;&amp; npm run type-check &amp;&amp; npm run <span class="built_in">test</span>:unit</span><br></pre></td></tr></table></figure>
-
-<h3 id="2-4-反思与闭环纠错-Self-Correction-Loop"><a href="#2-4-反思与闭环纠错-Self-Correction-Loop" class="headerlink" title="2.4 反思与闭环纠错 (Self-Correction Loop)"></a>2.4 反思与闭环纠错 (Self-Correction Loop)</h3><p>当构建或测试报错时，不要让人类开发者充当传话筒。将编译器的 stderr 直接反馈给 Agent，让其对照报错行号和调用栈自愈：</p>
-<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 示例：类型守卫与防御性代码重构</span></span><br><span class="line">interface <span class="title class_">UserProfile</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: string;</span><br><span class="line">  <span class="attr">name</span>: string;</span><br><span class="line">  settings?: &#123;</span><br><span class="line">    theme?: <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化前：可能抛出 TypeError</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getTheme</span>(<span class="params">user: UserProfile</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>.<span class="property">theme</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化后：Agent 自愈加入可选链与兜底默认值</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getThemeSafe</span>(<span class="params">user: UserProfile</span>): <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>?.<span class="property">theme</span> ?? <span class="string">&#x27;light&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-
-<h2 id="3-常见避坑指南"><a href="#3-常见避坑指南" class="headerlink" title="3. 常见避坑指南"></a>3. 常见避坑指南</h2><ol>
-<li><strong>避免单次下达过于宏大的模糊任务</strong>：将「重构整个用户模块」细化为「提取用户状态管理 Store」、「重构用户资料表单校验」等独立小步骤。</li>
-<li><strong>保留人类掌控权（Human in the Loop）</strong>：涉及数据库变更、生产部署和密钥管理的操作，必须设置人类二次确认机制。</li>
-<li><strong>保持测试用例覆盖</strong>：AI 写出的代码必须有单元测试做底线保障，测试是检验 Agent 输出质量的最佳试金石。</li>
-</ol>
-<h2 id="4-总结与展望"><a href="#4-总结与展望" class="headerlink" title="4. 总结与展望"></a>4. 总结与展望</h2><p>AI 不会取代开发者，但<strong>善用 AI Agent 的开发者正在以数倍的效率拉开差距</strong>。将重复性的样板代码、繁琐的类型补齐和回归测试交给 Agent 处理，开发者才能将最宝贵的精力聚焦在核心架构设计、业务洞察与技术创新上。</p>
-]]></content>
-      <categories>
-        <category>技术笔记</category>
-      </categories>
-      <tags>
-        <tag>AI</tag>
-        <tag>Agent</tag>
-        <tag>效率工具</tag>
-        <tag>工作流</tag>
-        <tag>开发实践</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>本站搭建记录：Hexo + Butterfly + GitHub Pages</title>
     <url>/2026/08/26/blog-setup-notes/</url>
     <content><![CDATA[<p>这篇记录一下本博客（李神的小站）的完整搭建过程，环境为 Windows 11 + Node.js 22。</p>
@@ -125,6 +64,56 @@
         <tag>Hexo</tag>
         <tag>Butterfly</tag>
         <tag>建站</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>开博大吉！欢迎来到李神的小站</title>
+    <url>/2026/08/26/hello-lishen/</url>
+    <content><![CDATA[<p>大家好，我是 <strong>李神</strong>。</p>
+<p>经过（并不漫长的）一番折腾，这个博客终于上线了。万事开头难，开头的这篇就随便聊聊：这里会写些什么，以及为什么要有这个博客。</p>
+<h2 id="为什么写博客"><a href="#为什么写博客" class="headerlink" title="为什么写博客"></a>为什么写博客</h2><blockquote>
+<p>输出是最好的输入。</p>
+</blockquote>
+<ul>
+<li><strong>沉淀知识</strong>：学到的东西只有写下来、讲明白，才算真正掌握</li>
+<li><strong>记录成长</strong>：多年后回头看，能清楚看到自己一路走来的轨迹</li>
+<li><strong>结识同好</strong>：如果某篇文章恰好帮到了屏幕前的你，那就太好了</li>
+</ul>
+<h2 id="这里会写些什么"><a href="#这里会写些什么" class="headerlink" title="这里会写些什么"></a>这里会写些什么</h2><table>
+<thead>
+<tr>
+<th>栏目方向</th>
+<th>内容</th>
+</tr>
+</thead>
+<tbody><tr>
+<td>技术笔记</td>
+<td>开发实践中踩过的坑与解法</td>
+</tr>
+<tr>
+<td>工具折腾</td>
+<td>各种提效工具、开源项目的使用心得</td>
+</tr>
+<tr>
+<td>读书思考</td>
+<td>书摘、随想</td>
+</tr>
+<tr>
+<td>生活随笔</td>
+<td>偶尔写点不严肃的</td>
+</tr>
+</tbody></table>
+<h2 id="关于这个名字"><a href="#关于这个名字" class="headerlink" title="关于这个名字"></a>关于这个名字</h2><p>「李神」是朋友们的玩笑式爱称，起初还有点不好意思，后来就坦然接受了——毕竟，谁还不想成神呢（笑）。</p>
+<hr>
+<p>本站基于 <a href="https://hexo.io/" target="_blank" rel="noopener external nofollow noreferrer">Hexo</a> + <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener external nofollow noreferrer">Butterfly</a> 搭建，托管于 GitHub Pages，搭建过程记在了下一篇文章里。</p>
+<p>欢迎常来逛逛，也欢迎在评论区留下你的足迹。</p>
+]]></content>
+      <categories>
+        <category>生活随笔</category>
+      </categories>
+      <tags>
+        <tag>随笔</tag>
+        <tag>公告</tag>
       </tags>
   </entry>
   <entry>
@@ -312,56 +301,6 @@
       </tags>
   </entry>
   <entry>
-    <title>开博大吉！欢迎来到李神的小站</title>
-    <url>/2026/08/26/hello-lishen/</url>
-    <content><![CDATA[<p>大家好，我是 <strong>李神</strong>。</p>
-<p>经过（并不漫长的）一番折腾，这个博客终于上线了。万事开头难，开头的这篇就随便聊聊：这里会写些什么，以及为什么要有这个博客。</p>
-<h2 id="为什么写博客"><a href="#为什么写博客" class="headerlink" title="为什么写博客"></a>为什么写博客</h2><blockquote>
-<p>输出是最好的输入。</p>
-</blockquote>
-<ul>
-<li><strong>沉淀知识</strong>：学到的东西只有写下来、讲明白，才算真正掌握</li>
-<li><strong>记录成长</strong>：多年后回头看，能清楚看到自己一路走来的轨迹</li>
-<li><strong>结识同好</strong>：如果某篇文章恰好帮到了屏幕前的你，那就太好了</li>
-</ul>
-<h2 id="这里会写些什么"><a href="#这里会写些什么" class="headerlink" title="这里会写些什么"></a>这里会写些什么</h2><table>
-<thead>
-<tr>
-<th>栏目方向</th>
-<th>内容</th>
-</tr>
-</thead>
-<tbody><tr>
-<td>技术笔记</td>
-<td>开发实践中踩过的坑与解法</td>
-</tr>
-<tr>
-<td>工具折腾</td>
-<td>各种提效工具、开源项目的使用心得</td>
-</tr>
-<tr>
-<td>读书思考</td>
-<td>书摘、随想</td>
-</tr>
-<tr>
-<td>生活随笔</td>
-<td>偶尔写点不严肃的</td>
-</tr>
-</tbody></table>
-<h2 id="关于这个名字"><a href="#关于这个名字" class="headerlink" title="关于这个名字"></a>关于这个名字</h2><p>「李神」是朋友们的玩笑式爱称，起初还有点不好意思，后来就坦然接受了——毕竟，谁还不想成神呢（笑）。</p>
-<hr>
-<p>本站基于 <a href="https://hexo.io/" target="_blank" rel="noopener external nofollow noreferrer">Hexo</a> + <a href="https://github.com/jerryc127/hexo-theme-butterfly" target="_blank" rel="noopener external nofollow noreferrer">Butterfly</a> 搭建，托管于 GitHub Pages，搭建过程记在了下一篇文章里。</p>
-<p>欢迎常来逛逛，也欢迎在评论区留下你的足迹。</p>
-]]></content>
-      <categories>
-        <category>生活随笔</category>
-      </categories>
-      <tags>
-        <tag>随笔</tag>
-        <tag>公告</tag>
-      </tags>
-  </entry>
-  <entry>
     <title>思考的复利：构建个人知识管理与持续输出闭环</title>
     <url>/2026/08/26/personal-knowledge-management/</url>
     <content><![CDATA[<p>在信息爆炸的时代，我们每天被海量的碎片化资讯、短视频和推文包围。很多人常常陷入一种「收藏即学会」的心理安慰中，然而当真正需要调用知识解决问题时，却发现脑海中一片空白。</p>
@@ -408,6 +347,67 @@
         <tag>知识管理</tag>
         <tag>思考</tag>
         <tag>方法论</tag>
+      </tags>
+  </entry>
+  <entry>
+    <title>从零构建 AI Agent 驱动的现代化开发工作流：提效 300% 的实战与思考</title>
+    <url>/2026/08/26/ai-agent-coding-workflow/</url>
+    <content><![CDATA[<p>在 2026 年的今天，AI 辅助开发已经从最初简单的「代码补全（Copilot 模式）」彻底演进为<strong>「自主智能体协作（Agentic Workflow 模式）」</strong>。</p>
+<p>过去我们只是把 AI 当作查阅语法的加强版搜索引擎；而现在，一个配置得当的 AI Agent 能够理解整套工程上下文、自主分析代码仓库、规划多步重构方案、编写测试用例并完成自动化校验。</p>
+<p>本文结合我近期的实际工程落地经验，详细拆解如何搭建一套高可用、低幻觉的 AI Agent 研发协作工作流。</p>
+<span id="more"></span>
+
+<h2 id="1-协作范式的演进：从单轮-Prompt-到-Agent-协同"><a href="#1-协作范式的演进：从单轮-Prompt-到-Agent-协同" class="headerlink" title="1. 协作范式的演进：从单轮 Prompt 到 Agent 协同"></a>1. 协作范式的演进：从单轮 Prompt 到 Agent 协同</h2><p>传统的一问一答模式在面对复杂业务逻辑时极容易遭遇「幻觉」和「上下文丢失」。现代 Agent 架构通过引入<strong>感知（Perception）</strong>、<strong>规划（Planning）</strong>、<strong>工具执行（Action）与反思校验（Reflection）</strong>形成了完整的反馈回路。</p>
+<pre><code class="highlight mermaid">flowchart TD
+    A[用户提出复杂需求] --&gt; B[任务拆解与架构规划]
+    B --&gt; C&#123;是否需要代码库调研?&#125;
+    C -- 是 --&gt; D[代码检索与上下文分析]
+    C -- 否 --&gt; E[生成实施计划]
+    D --&gt; E
+    E --&gt; F[执行文件读写与命令修改]
+    F --&gt; G[自动化测试与语法校验]
+    G -- 失败 --&gt; H[捕获错误日志并自我修复]
+    H --&gt; F
+    G -- 成功 --&gt; I[生成改动总结与审核报告]</code></pre>
+
+<h2 id="2-核心四大支柱"><a href="#2-核心四大支柱" class="headerlink" title="2. 核心四大支柱"></a>2. 核心四大支柱</h2><h3 id="2-1-上下文注入与代码理解-Context-Management"><a href="#2-1-上下文注入与代码理解-Context-Management" class="headerlink" title="2.1 上下文注入与代码理解 (Context Management)"></a>2.1 上下文注入与代码理解 (Context Management)</h3><p>Agent 能否给出精准改动的关键在于<strong>高质量的上下文</strong>。</p>
+<ul>
+<li><strong>项目结构与规范文件</strong>：在根目录提供精准的规则文档（如 <code>CLAUDE.md</code>、<code>.cursorrules</code> 或 Agent 系统配置），声明运行命令、代码风格与目录约定。</li>
+<li><strong>按需检索而非全量灌入</strong>：利用 AST 解析或高性能文本检索（如 ripgrep &#x2F; fd）仅提取目标函数与调用链，避免消耗过多上下文窗口导致注意力分散。</li>
+</ul>
+<h3 id="2-2-规划先行-Planning-Mode"><a href="#2-2-规划先行-Planning-Mode" class="headerlink" title="2.2 规划先行 (Planning Mode)"></a>2.2 规划先行 (Planning Mode)</h3><p>面对跨越 3 个以上文件或涉及架构调整的需求，坚决执行「规划 - 确认 - 执行」三步走：</p>
+<ol>
+<li><strong>Research 阶段</strong>：只读分析，定位核心接口与影响面；</li>
+<li><strong>Plan 阶段</strong>：输出详细的技术实现文档（包含改动文件、接口设计、破坏性变更与回滚预案）；</li>
+<li><strong>Execution 阶段</strong>：按计划逐步编码，严禁无预案的盲目重构。</li>
+</ol>
+<h3 id="2-3-工具集集成-Tooling-Integration"><a href="#2-3-工具集集成-Tooling-Integration" class="headerlink" title="2.3 工具集集成 (Tooling Integration)"></a>2.3 工具集集成 (Tooling Integration)</h3><p>赋予 Agent 最小必要且安全的系统能力：</p>
+<ul>
+<li>文件查看与精准行替换（避免大文件全量覆盖导致的缩进&#x2F;格式破坏）；</li>
+<li>本地构建与语法检查命令（TypeScript 类型检查、Linter、Unit Test）；</li>
+<li>外部文档查询与 API 检索。</li>
+</ul>
+<figure class="highlight bash"><table><tr><td class="code"><pre><span class="line"><span class="comment"># 典型的自动化验证组合</span></span><br><span class="line">npm run lint &amp;&amp; npm run type-check &amp;&amp; npm run <span class="built_in">test</span>:unit</span><br></pre></td></tr></table></figure>
+
+<h3 id="2-4-反思与闭环纠错-Self-Correction-Loop"><a href="#2-4-反思与闭环纠错-Self-Correction-Loop" class="headerlink" title="2.4 反思与闭环纠错 (Self-Correction Loop)"></a>2.4 反思与闭环纠错 (Self-Correction Loop)</h3><p>当构建或测试报错时，不要让人类开发者充当传话筒。将编译器的 stderr 直接反馈给 Agent，让其对照报错行号和调用栈自愈：</p>
+<figure class="highlight javascript"><table><tr><td class="code"><pre><span class="line"><span class="comment">// 示例：类型守卫与防御性代码重构</span></span><br><span class="line">interface <span class="title class_">UserProfile</span> &#123;</span><br><span class="line">  <span class="attr">id</span>: string;</span><br><span class="line">  <span class="attr">name</span>: string;</span><br><span class="line">  settings?: &#123;</span><br><span class="line">    theme?: <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span>;</span><br><span class="line">  &#125;;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化前：可能抛出 TypeError</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getTheme</span>(<span class="params">user: UserProfile</span>) &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>.<span class="property">theme</span>;</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment">// 优化后：Agent 自愈加入可选链与兜底默认值</span></span><br><span class="line"><span class="keyword">function</span> <span class="title function_">getThemeSafe</span>(<span class="params">user: UserProfile</span>): <span class="string">&#x27;light&#x27;</span> | <span class="string">&#x27;dark&#x27;</span> &#123;</span><br><span class="line">  <span class="keyword">return</span> user.<span class="property">settings</span>?.<span class="property">theme</span> ?? <span class="string">&#x27;light&#x27;</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+
+<h2 id="3-常见避坑指南"><a href="#3-常见避坑指南" class="headerlink" title="3. 常见避坑指南"></a>3. 常见避坑指南</h2><ol>
+<li><strong>避免单次下达过于宏大的模糊任务</strong>：将「重构整个用户模块」细化为「提取用户状态管理 Store」、「重构用户资料表单校验」等独立小步骤。</li>
+<li><strong>保留人类掌控权（Human in the Loop）</strong>：涉及数据库变更、生产部署和密钥管理的操作，必须设置人类二次确认机制。</li>
+<li><strong>保持测试用例覆盖</strong>：AI 写出的代码必须有单元测试做底线保障，测试是检验 Agent 输出质量的最佳试金石。</li>
+</ol>
+<h2 id="4-总结与展望"><a href="#4-总结与展望" class="headerlink" title="4. 总结与展望"></a>4. 总结与展望</h2><p>AI 不会取代开发者，但<strong>善用 AI Agent 的开发者正在以数倍的效率拉开差距</strong>。将重复性的样板代码、繁琐的类型补齐和回归测试交给 Agent 处理，开发者才能将最宝贵的精力聚焦在核心架构设计、业务洞察与技术创新上。</p>
+]]></content>
+      <categories>
+        <category>技术笔记</category>
+      </categories>
+      <tags>
+        <tag>AI</tag>
+        <tag>Agent</tag>
+        <tag>效率工具</tag>
+        <tag>工作流</tag>
+        <tag>开发实践</tag>
       </tags>
   </entry>
 </search>

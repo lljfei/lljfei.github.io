@@ -28,7 +28,8 @@
 
     if (!document.getElementById('editorial-hero-brief')) {
       var brief = document.createElement('div');
-      var postCount = document.querySelectorAll('#recent-posts .recent-post-item').length;
+      var countNode = document.querySelector('#aside-content .site-data a .length-num');
+      var postCount = countNode ? Number(countNode.textContent.trim()) : document.querySelectorAll('#recent-posts .recent-post-item').length;
       brief.id = 'editorial-hero-brief';
       brief.className = 'hero-brief';
       brief.innerHTML = '<span>OPEN KNOWLEDGE</span><span>' + String(postCount || 0).padStart(2, '0') + ' ENTRIES</span><span>EST. 2026</span>';
@@ -200,19 +201,27 @@
   }
 
   function initRecentPostCardLinks() {
-    var recentPosts = document.getElementById('recent-posts');
-    if (!recentPosts || recentPosts.dataset.editorialCardLinks === 'true') return;
-    recentPosts.dataset.editorialCardLinks = 'true';
+    var targets = [
+      { container: document.getElementById('recent-posts'), cardSelector: '.recent-post-item', linkSelector: '.article-title' },
+      { container: document.querySelector('#aside-content .card-recent-post'), cardSelector: '.aside-list-item', linkSelector: 'a.title' }
+    ];
 
-    recentPosts.addEventListener('click', function (event) {
-      if (event.defaultPrevented || event.button !== 0) return;
+    targets.forEach(function (target) {
+      var container = target.container;
+      if (!container || container.dataset.editorialCardLinks === 'true') return;
+      container.dataset.editorialCardLinks = 'true';
 
-      var card = event.target.closest ? event.target.closest('.recent-post-item') : null;
-      if (!card || !recentPosts.contains(card) || card.classList.contains('ads-wrap')) return;
-      if (event.target.closest('a, button, input, textarea, select, summary')) return;
+      container.addEventListener('click', function (event) {
+        if (event.defaultPrevented || event.button !== 0 || event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+        if (window.getSelection && window.getSelection().toString()) return;
 
-      var titleLink = card.querySelector('.article-title');
-      if (titleLink) titleLink.click();
+        var card = event.target.closest ? event.target.closest(target.cardSelector) : null;
+        if (!card || !container.contains(card) || card.classList.contains('ads-wrap')) return;
+        if (event.target.closest('a, button, input, textarea, select, summary')) return;
+
+        var titleLink = card.querySelector(target.linkSelector);
+        if (titleLink) titleLink.click();
+      });
     });
   }
 
@@ -234,7 +243,7 @@
           entry.target.classList.add('is-visible');
           observer.unobserve(entry.target);
         });
-      }, { threshold: 0.12, rootMargin: '0px 0px -6% 0px' });
+      }, { threshold: 0, rootMargin: '0px 0px -24px 0px' });
     }
 
     targets.forEach(function (target, index) {
@@ -281,6 +290,9 @@
       var offset = Math.max(minimumOffset, navHeight + 16);
       var destination = heading.getBoundingClientRect().top + (window.scrollY || window.pageYOffset) - offset;
 
+      history.pushState(null, '', href);
+      heading.setAttribute('tabindex', '-1');
+      heading.focus({ preventScroll: true });
       window.scrollTo({
         top: Math.max(0, destination),
         behavior: prefersReducedMotion() ? 'auto' : 'smooth'
@@ -293,9 +305,56 @@
     }, { capture: true });
   }
 
+  function initMobileToc() {
+    var toc = document.getElementById('card-toc');
+    var trigger = document.getElementById('mobile-toc-button');
+    if (!toc || !trigger || toc.dataset.editorialTocState) return;
+    toc.dataset.editorialTocState = 'true';
+    toc.setAttribute('role', 'dialog');
+    toc.setAttribute('aria-label', '文章目录');
+    toc.setAttribute('aria-modal', 'true');
+    trigger.setAttribute('aria-controls', toc.id);
+    trigger.setAttribute('aria-expanded', 'false');
+    trigger.setAttribute('aria-label', '打开文章目录');
+
+    var sync = function () {
+      var mobile = window.innerWidth < 900;
+      var open = toc.classList.contains('open');
+      toc.setAttribute('role', mobile ? 'dialog' : 'navigation');
+      if (mobile) toc.setAttribute('aria-modal', 'true');
+      else toc.removeAttribute('aria-modal');
+      trigger.setAttribute('aria-expanded', String(mobile && open));
+      trigger.setAttribute('aria-label', mobile && open ? '关闭文章目录' : '打开文章目录');
+      toc.setAttribute('aria-hidden', String(mobile && !open));
+      toc.inert = mobile && !open;
+      if (mobile && open) {
+        var firstLink = toc.querySelector('.toc-link');
+        if (firstLink && !toc.contains(document.activeElement)) firstLink.focus({ preventScroll: true });
+      }
+    };
+    trigger.addEventListener('keydown', function (event) {
+      if (event.key === 'Enter' || event.key === ' ') {
+        event.preventDefault();
+        trigger.click();
+      }
+    });
+    toc.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape' && window.innerWidth < 900) {
+        event.preventDefault();
+        trigger.click();
+        trigger.focus({ preventScroll: true });
+      } else if (window.innerWidth < 900) {
+        trapFocus(event, toc);
+      }
+    });
+    new MutationObserver(sync).observe(toc, { attributes: true, attributeFilter: ['class'] });
+    window.addEventListener('resize', sync, { passive: true });
+    sync();
+  }
+
   function initNavState() {
     var currentPath = window.location.pathname.replace(/\/$/, '') || '/';
-    document.querySelectorAll('#nav .menus_item > a').forEach(function (link) {
+    document.querySelectorAll('#nav .menus_item > a, #sidebar-menus .menus_item > a').forEach(function (link) {
       var href = link.getAttribute('href');
       if (!href || href.charAt(0) === '#') return;
       var linkPath;
@@ -304,7 +363,10 @@
       } catch (error) {
         return;
       }
-      link.classList.toggle('is-current', linkPath === currentPath || (linkPath !== '/' && currentPath.indexOf(linkPath + '/') === 0));
+      var active = linkPath === currentPath || (linkPath !== '/' && currentPath.indexOf(linkPath + '/') === 0);
+      link.classList.toggle('is-current', active);
+      if (active) link.setAttribute('aria-current', 'page');
+      else link.removeAttribute('aria-current');
     });
 
     if (window.editorialNavBound) return;
@@ -347,8 +409,12 @@
           header.style.setProperty('--hero-scroll-shift', Math.min(currentTop * 0.08, 34).toFixed(2) + 'px');
         }
 
-        var totalHeight = document.documentElement.scrollHeight - window.innerHeight;
-        var progress = totalHeight > 0 ? currentTop / totalHeight : 0;
+        var article = document.getElementById('article-container');
+        var isPost = !!document.getElementById('post');
+        bar.hidden = !isPost;
+        var articleTop = article ? article.getBoundingClientRect().top + currentTop : 0;
+        var totalHeight = article ? article.offsetHeight - window.innerHeight : 0;
+        var progress = totalHeight > 0 ? (currentTop - articleTop) / totalHeight : (currentTop >= articleTop ? 1 : 0);
         bar.style.transform = 'scaleX(' + Math.min(1, Math.max(0, progress)) + ')';
         ticking = false;
       });
@@ -621,7 +687,10 @@
         if (event.target === viewer) close();
       });
       viewer.addEventListener('keydown', function (event) {
-        if (event.key === 'Escape') close();
+        if (event.key === 'Tab') {
+          event.preventDefault();
+          closeButton.focus();
+        } else if (event.key === 'Escape') close();
         else if (event.key === '+' || event.key === '=') setZoom(zoom * 1.25);
         else if (event.key === '-') setZoom(zoom / 1.25);
         else if (event.key === '0') resetView();
@@ -655,25 +724,239 @@
       if (table.parentElement && table.parentElement.classList.contains('editorial-table-scroll')) return;
       var wrapper = document.createElement('div');
       wrapper.className = 'editorial-table-scroll';
+      wrapper.tabIndex = 0;
+      wrapper.setAttribute('role', 'region');
+      wrapper.setAttribute('aria-label', '表格，可左右滚动');
       table.parentNode.insertBefore(wrapper, table);
       wrapper.appendChild(table);
     });
   }
 
+  function trapFocus(event, container) {
+    if (event.key !== 'Tab') return;
+    var controls = Array.from(container.querySelectorAll('button, input, a[href], [tabindex="0"]')).filter(function (el) {
+      return el.getClientRects().length && !el.disabled && !el.closest('[inert]');
+    });
+    if (!controls.length) return;
+    var first = controls[0];
+    var last = controls[controls.length - 1];
+    if (event.shiftKey && (document.activeElement === first || !container.contains(document.activeElement))) {
+      event.preventDefault(); last.focus();
+    } else if (!event.shiftKey && (document.activeElement === last || !container.contains(document.activeElement))) {
+      event.preventDefault(); first.focus();
+    }
+  }
+
+  function initMobileNavigation() {
+    var menu = document.getElementById('sidebar-menus');
+    var trigger = document.getElementById('toggle-menu');
+    var mask = document.getElementById('menu-mask');
+    if (!menu || !trigger || !mask) return;
+    trigger.setAttribute('aria-controls', menu.id);
+    trigger.setAttribute('aria-expanded', String(menu.classList.contains('open')));
+    if (menu.dataset.editorialNavigation) return;
+    menu.dataset.editorialNavigation = 'true';
+    menu.setAttribute('role', 'dialog');
+    menu.setAttribute('aria-label', '网站导航');
+    menu.setAttribute('aria-modal', 'true');
+    var close = document.createElement('button');
+    close.type = 'button';
+    close.className = 'editorial-menu-close';
+    close.textContent = '关闭导航 ×';
+    menu.prepend(close);
+    close.addEventListener('click', function () { mask.click(); });
+    menu.addEventListener('keydown', function (event) {
+      if (event.key === 'Escape') { event.preventDefault(); mask.click(); }
+      else trapFocus(event, menu);
+    });
+    var wasOpen = false;
+    var background = [];
+    var sync = function () {
+      var open = menu.classList.contains('open');
+      menu.inert = !open;
+      menu.setAttribute('aria-hidden', String(!open));
+      var currentTrigger = document.getElementById('toggle-menu');
+      if (currentTrigger) {
+        currentTrigger.setAttribute('aria-expanded', String(open));
+        currentTrigger.setAttribute('aria-label', open ? '关闭导航菜单' : '打开导航菜单');
+      }
+      if (open && !wasOpen) {
+        background = Array.from(document.querySelectorAll('#body-wrap, #rightside')).map(function (element) {
+          var state = { element: element, inert: element.inert };
+          element.inert = true;
+          return state;
+        });
+        close.focus({ preventScroll: true });
+      } else if (!open && wasOpen) {
+        background.forEach(function (state) { state.element.inert = state.inert; });
+        background = [];
+        if (currentTrigger && currentTrigger.getClientRects().length) currentTrigger.focus({ preventScroll: true });
+      }
+      wasOpen = open;
+    };
+    new MutationObserver(sync).observe(menu, { attributes: true, attributeFilter: ['class'] });
+    sync();
+  }
+
+  function initContentNavigation() {
+    var main = document.getElementById('content-inner');
+    if (main && !document.getElementById('editorial-skip-link')) {
+      var skip = document.createElement('a');
+      skip.id = 'editorial-skip-link';
+      skip.href = '#content-inner';
+      skip.textContent = '跳到主要内容';
+      document.body.prepend(skip);
+      skip.addEventListener('click', function () {
+        var target = document.getElementById('content-inner');
+        if (target) { target.tabIndex = -1; target.focus({ preventScroll: true }); }
+      });
+    }
+    // Authors may already number their headings; avoid displaying a second number.
+    document.querySelectorAll('.toc-link').forEach(function (link) {
+      var label = link.querySelector('.toc-text');
+      var number = link.querySelector('.toc-number');
+      if (label && number) number.hidden = /^\s*\d+[.、．]/.test(label.textContent);
+    });
+    var tags = document.querySelector('.page.type-tags .tag-cloud-list');
+    if (!tags || document.getElementById('editorial-tag-filter')) return;
+    var links = Array.from(tags.querySelectorAll('a'));
+    var filter = document.createElement('div');
+    filter.className = 'editorial-tag-tools';
+    filter.innerHTML = '<label for="editorial-tag-filter">查找标签</label><div class="editorial-tag-input"><input id="editorial-tag-filter" type="search" placeholder="输入标签名称，例如 Markdown" autocomplete="off"><button type="button">清除</button></div><p role="status" aria-live="polite"></p>';
+    tags.before(filter);
+    var input = filter.querySelector('input');
+    var clear = filter.querySelector('button');
+    var status = filter.querySelector('[role="status"]');
+    var update = function () {
+      var query = input.value.trim().toLocaleLowerCase();
+      var count = 0;
+      links.forEach(function (link) {
+        var match = link.textContent.toLocaleLowerCase().includes(query);
+        link.hidden = !match;
+        if (match) count += 1;
+      });
+      status.textContent = count ? '显示 ' + count + ' / ' + links.length + ' 个标签' : '没有匹配的标签，试试其他关键词或清除筛选。';
+      clear.disabled = !input.value;
+    };
+    input.addEventListener('input', update);
+    clear.addEventListener('click', function () { input.value = ''; update(); input.focus(); });
+    update();
+  }
+
+  function initAccessibleControls() {
+    [
+      ['#search-button .search', '搜索文章'],
+      ['#toggle-menu', '打开导航菜单']
+    ].forEach(function (item) {
+      var control = document.querySelector(item[0]);
+      if (!control || control.dataset.editorialKeyboard) return;
+      control.dataset.editorialKeyboard = 'true';
+      control.setAttribute('role', 'button');
+      control.setAttribute('aria-label', item[1]);
+      control.tabIndex = 0;
+      if (item[0].indexOf('#search-button') === 0) {
+        control.setAttribute('aria-haspopup', 'dialog');
+        control.setAttribute('aria-controls', 'local-search');
+        control.setAttribute('aria-expanded', 'false');
+      }
+      control.addEventListener('keydown', function (event) {
+        if (event.key === 'Enter' || event.key === ' ') {
+          event.preventDefault();
+          control.click();
+        }
+      });
+    });
+    var dialog = document.querySelector('#local-search .search-dialog');
+    if (!dialog || dialog.dataset.editorialKeyboard) return;
+    dialog.dataset.editorialKeyboard = 'true';
+    dialog.setAttribute('role', 'dialog');
+    dialog.setAttribute('aria-modal', 'true');
+    dialog.setAttribute('aria-label', '搜索文章');
+    var closeButton = dialog.querySelector('.search-close-button');
+    if (closeButton) closeButton.setAttribute('aria-label', '关闭搜索');
+    var input = dialog.querySelector('input');
+    if (input) input.setAttribute('aria-label', '搜索关键词');
+    // The theme closes with an animation; restore focus once it hides the dialog.
+    var wasOpen = false;
+    var syncSearchState = function () {
+      var open = getComputedStyle(dialog).display !== 'none';
+      var trigger = document.querySelector('#search-button .search');
+      if (trigger) trigger.setAttribute('aria-expanded', String(open));
+      if (wasOpen && !open) {
+        if (trigger) trigger.focus({ preventScroll: true });
+      }
+      wasOpen = open;
+    };
+    new MutationObserver(syncSearchState).observe(dialog, { attributes: true, attributeFilter: ['style', 'class'] });
+    syncSearchState();
+    dialog.addEventListener('keydown', function (event) { trapFocus(event, dialog); });
+    var stats = dialog.querySelector('#local-search-stats');
+    if (stats) { stats.setAttribute('role', 'status'); stats.setAttribute('aria-live', 'polite'); }
+    // Re-run a query entered while the search index was still downloading.
+    if (!window.editorialSearchLoadedBound) {
+      window.editorialSearchLoadedBound = true;
+      window.addEventListener('search:loaded', function () {
+        var field = document.querySelector('#local-search input');
+        if (field && field.value.trim()) field.dispatchEvent(new Event('input', { bubbles: true }));
+      });
+    }
+  }
+
+  function enhanceDynamicContent(root) {
+    if (!root || root.nodeType !== 1) return;
+    var links = [];
+    if (root.matches('a[target="_blank"]')) links.push(root);
+    links = links.concat(Array.from(root.querySelectorAll('a[target="_blank"]')));
+    links.forEach(function (link) {
+      var rel = new Set((link.getAttribute('rel') || '').split(/\s+/).filter(Boolean));
+      rel.add('noopener');
+      rel.add('noreferrer');
+      link.setAttribute('rel', Array.from(rel).join(' '));
+    });
+
+    var images = [];
+    if (root.matches('.flink-list-item img')) images.push(root);
+    images = images.concat(Array.from(root.querySelectorAll('.flink-list-item img')));
+    images.forEach(function (image) {
+      if (!image.hasAttribute('loading')) image.setAttribute('loading', 'lazy');
+      if (!image.hasAttribute('decoding')) image.setAttribute('decoding', 'async');
+    });
+  }
+
+  function initDynamicContentEnhancements() {
+    enhanceDynamicContent(document.body);
+    if (window.editorialContentObserver) return;
+    window.editorialContentObserver = new MutationObserver(function (mutations) {
+      mutations.forEach(function (mutation) {
+        Array.from(mutation.addedNodes).forEach(enhanceDynamicContent);
+      });
+    });
+    window.editorialContentObserver.observe(document.body, { childList: true, subtree: true });
+  }
+
   function boot() {
+    initAccessibleControls();
+    initMobileNavigation();
+    initContentNavigation();
     initHeroElements();
     initHeroParticles();
     initRecentPostCardLinks();
     initScrollReveal();
     initTocOffset();
+    initMobileToc();
     initNavState();
     initScrollEffects();
     initEditorialRail();
     initLiveUptime();
     initMermaidInlineViewer();
     initTableScroll();
+    initDynamicContentEnhancements();
   }
 
-  document.addEventListener('DOMContentLoaded', boot);
+  document.addEventListener('pjax:send', function () {
+    if (window.editorialRevealObserver) window.editorialRevealObserver.disconnect();
+  });
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
+  else boot();
   document.addEventListener('pjax:complete', boot);
 }());
