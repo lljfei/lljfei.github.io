@@ -41,7 +41,6 @@ theme_color:
 # ---------------- 社交链接（替换为你的真实地址） ----------------
 social:
   fab fa-github: https://github.com/lljfei || GitHub || '#24292e'
-  fas fa-rss: /atom.xml || RSS || '#ffa500'
 
 # ---------------- 头像 / 图标 ----------------
 favicon: /img/avatar.svg
