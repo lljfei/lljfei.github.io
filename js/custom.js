@@ -4,6 +4,7 @@
 
   var particleFrame = null;
   var particleCleanup = null;
+  var depthCardCleanup = null;
 
   function prefersReducedMotion() {
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
@@ -59,7 +60,7 @@
 
   function initHeroParticles() {
     var header = document.querySelector('#page-header.full_page');
-    if (!header || prefersReducedMotion() || !supportsFinePointer()) {
+    if (!header) {
       if (particleCleanup) particleCleanup();
       return;
     }
@@ -67,97 +68,178 @@
     if (header.dataset.editorialParticles === 'true') return;
     if (particleCleanup) particleCleanup();
 
-    var canvas = document.createElement('canvas');
-    var ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    canvas.id = 'hero-particle-canvas';
-    canvas.setAttribute('aria-hidden', 'true');
-    header.insertBefore(canvas, header.firstChild);
+    var observatory = document.createElement('section');
+    observatory.id = 'editorial-observatory';
+    observatory.className = 'observatory';
+    observatory.setAttribute('aria-label', '3D 轨道观测台');
+    observatory.innerHTML = '<div class="observatory-heading"><span class="observatory-kicker">INTERACTIVE / 01</span><span class="observatory-state"><i aria-hidden="true"></i> LIVE ORBIT</span></div>'
+      + '<div class="observatory-stage"><canvas id="hero-observatory-canvas" class="observatory-canvas" tabindex="0" aria-label="可交互的 3D 轨道观测台"></canvas><div class="observatory-fallback" aria-hidden="true"><span></span><span></span><span></span></div><div class="observatory-caption"><strong class="observatory-title">Orbital Notes</strong><span class="observatory-subtitle">A living index of ideas</span></div></div>'
+      + '<div class="observatory-controls"><div class="observatory-shapes" role="group" aria-label="切换 3D 形态"><button type="button" data-shape="0" aria-pressed="true">球体</button><button type="button" data-shape="1" aria-pressed="false">环流</button><button type="button" data-shape="2" aria-pressed="false">螺旋</button></div><div class="observatory-tools"><button type="button" data-action="pause" aria-label="暂停旋转">暂停旋转</button><button type="button" data-action="reset" aria-label="复位 3D 观测台">复位</button></div></div>'
+      + '<p class="observatory-hint">拖动旋转 <span aria-hidden="true">·</span> 方向键微调 <span aria-hidden="true">·</span> 空格暂停</p>';
+    header.appendChild(observatory);
+    header.classList.add('has-observatory');
     header.dataset.editorialParticles = 'true';
 
+    var canvas = observatory.querySelector('.observatory-canvas');
+    var ctx = canvas.getContext('2d');
+    if (!ctx) {
+      observatory.classList.add('is-unavailable');
+      particleCleanup = function () {
+        observatory.remove();
+        header.classList.remove('has-observatory');
+        delete header.dataset.editorialParticles;
+        particleCleanup = null;
+      };
+      return;
+    }
+
+    observatory.classList.add('is-ready');
     var width = 0;
     var height = 0;
-    var density = 0;
+    var radius = 0;
     var points = [];
-    var palette = ['#e5b75e', '#e06a51', '#75aa91'];
+    var shape = 0;
+    var rotationX = -0.2;
+    var rotationY = 0.7;
+    var targetRotationX = rotationX;
+    var targetRotationY = rotationY;
     var isVisible = false;
     var isRunning = false;
+    var isPaused = false;
+    var isDragging = false;
+    var lastPointerX = 0;
+    var lastPointerY = 0;
     var visibilityObserver = null;
+    var resizeObserver = null;
+    var palette = ['#f0c878', '#e06a51', '#75aa91', '#f7f0e4'];
+    var motionAllowed = !prefersReducedMotion();
 
-    function resize() {
-      var ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-      width = header.clientWidth;
-      height = header.clientHeight;
-      canvas.width = Math.max(1, Math.floor(width * ratio));
-      canvas.height = Math.max(1, Math.floor(height * ratio));
-      canvas.style.width = width + 'px';
-      canvas.style.height = height + 'px';
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      density = Math.min(32, Math.max(16, Math.floor(width / 58)));
-      points = Array.from({ length: density }, function () {
-        return {
-          x: Math.random() * width,
-          y: Math.random() * height,
-          vx: (Math.random() - 0.5) * 0.24,
-          vy: (Math.random() - 0.5) * 0.24,
-          radius: Math.random() * 1.45 + 0.65,
-          alpha: Math.random() * 0.42 + 0.18,
-          color: palette[Math.floor(Math.random() * palette.length)]
+    function buildPoints() {
+      var count = Math.min(150, Math.max(82, Math.floor(width / 3.2)));
+      points = Array.from({ length: count }, function (_, index) {
+        var u = (index + 0.5) / count;
+        var theta = index * 2.3999632297;
+        var phi = Math.acos(1 - 2 * u);
+        var value = {
+          size: 0.7 + (index % 5) * 0.18,
+          alpha: 0.38 + (index % 7) * 0.075,
+          color: palette[index % palette.length],
+          x: 0,
+          y: 0,
+          z: 0
         };
+        value.sphere = { x: Math.sin(phi) * Math.cos(theta), y: Math.cos(phi), z: Math.sin(phi) * Math.sin(theta) };
+        value.ring = { x: Math.cos(theta) * (0.58 + (index % 9) * 0.045), y: Math.sin(theta * 3) * 0.12, z: Math.sin(theta) * (0.58 + (index % 9) * 0.045) };
+        var helixTheta = u * Math.PI * 10.5;
+        value.helix = { x: Math.cos(helixTheta) * 0.72, y: (u - 0.5) * 1.75, z: Math.sin(helixTheta) * 0.72 };
+        return value;
       });
     }
 
+    function resize() {
+      var ratio = Math.min(window.devicePixelRatio || 1, 1.5);
+      width = canvas.clientWidth || observatory.clientWidth;
+      height = canvas.clientHeight || 330;
+      canvas.width = Math.max(1, Math.floor(width * ratio));
+      canvas.height = Math.max(1, Math.floor(height * ratio));
+      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+      radius = Math.min(width, height) * 0.31;
+      buildPoints();
+      render();
+    }
+
+    function project(point) {
+      var cosY = Math.cos(rotationY);
+      var sinY = Math.sin(rotationY);
+      var x = point.x * cosY - point.z * sinY;
+      var z = point.x * sinY + point.z * cosY;
+      var cosX = Math.cos(rotationX);
+      var sinX = Math.sin(rotationX);
+      var y = point.y * cosX - z * sinX;
+      z = point.y * sinX + z * cosX;
+      var scale = 3.2 / (3.2 - z);
+      return { x: width * 0.5 + x * radius * scale, y: height * 0.49 + y * radius * scale, z: z, scale: scale };
+    }
+
+    function drawOrbit(tilt, alpha) {
+      ctx.beginPath();
+      for (var index = 0; index <= 80; index += 1) {
+        var angle = index / 80 * Math.PI * 2;
+        var orbitPoint = { x: Math.cos(angle), y: Math.sin(angle) * tilt, z: Math.sin(angle) * 0.22 };
+        var projected = project(orbitPoint);
+        if (index === 0) ctx.moveTo(projected.x, projected.y);
+        else ctx.lineTo(projected.x, projected.y);
+      }
+      ctx.globalAlpha = alpha;
+      ctx.strokeStyle = '#d8a44e';
+      ctx.lineWidth = 0.8;
+      ctx.setLineDash([2, 8]);
+      ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.globalAlpha = 1;
+    }
+
     function render() {
+      if (!width || !height) return;
+      ctx.clearRect(0, 0, width, height);
+      ctx.save();
+      var glow = ctx.createRadialGradient(width * 0.5, height * 0.49, 0, width * 0.5, height * 0.49, radius * 1.9);
+      glow.addColorStop(0, 'rgba(229, 183, 94, .18)');
+      glow.addColorStop(0.55, 'rgba(61, 121, 102, .07)');
+      glow.addColorStop(1, 'rgba(21, 18, 15, 0)');
+      ctx.fillStyle = glow;
+      ctx.fillRect(0, 0, width, height);
+      drawOrbit(0.48, 0.27);
+      drawOrbit(1.62, 0.2);
+
+      var projectedPoints = points.map(function (point) {
+        var source = point[shape === 0 ? 'sphere' : shape === 1 ? 'ring' : 'helix'];
+        point.x = source.x;
+        point.y = source.y;
+        point.z = source.z;
+        point.projection = project(point);
+        return point;
+      }).sort(function (first, second) { return first.projection.z - second.projection.z; });
+
+      projectedPoints.forEach(function (point) {
+        var projected = point.projection;
+        var depthAlpha = Math.max(0.2, Math.min(1, 0.53 + projected.z * 0.42));
+        ctx.beginPath();
+        ctx.arc(projected.x, projected.y, point.size * projected.scale, 0, Math.PI * 2);
+        ctx.globalAlpha = point.alpha * depthAlpha;
+        ctx.fillStyle = point.color;
+        ctx.shadowColor = point.color;
+        ctx.shadowBlur = 10 * projected.scale;
+        ctx.fill();
+        ctx.shadowBlur = 0;
+      });
+
+      ctx.globalAlpha = 0.82;
+      ctx.beginPath();
+      ctx.arc(width * 0.5, height * 0.49, Math.max(2.2, radius * 0.018), 0, Math.PI * 2);
+      ctx.fillStyle = '#f7f0e4';
+      ctx.fill();
+      ctx.restore();
+    }
+
+    function renderFrame() {
       if (!isRunning) {
         particleFrame = null;
         return;
       }
-
-      ctx.clearRect(0, 0, width, height);
-      points.forEach(function (point) {
-        point.x += point.vx;
-        point.y += point.vy;
-        if (point.x < -10) point.x = width + 10;
-        if (point.x > width + 10) point.x = -10;
-        if (point.y < -10) point.y = height + 10;
-        if (point.y > height + 10) point.y = -10;
-
-        ctx.beginPath();
-        ctx.arc(point.x, point.y, point.radius, 0, Math.PI * 2);
-        ctx.globalAlpha = point.alpha;
-        ctx.fillStyle = point.color;
-        ctx.fill();
-      });
-
-      var maxLineDistance = 112;
-      var maxLineDistanceSquared = maxLineDistance * maxLineDistance;
-      for (var i = 0; i < points.length; i += 1) {
-        for (var j = i + 1; j < points.length; j += 1) {
-          var xDistance = points[i].x - points[j].x;
-          var yDistance = points[i].y - points[j].y;
-          var lineDistanceSquared = xDistance * xDistance + yDistance * yDistance;
-          if (lineDistanceSquared < maxLineDistanceSquared) {
-            var lineDistance = Math.sqrt(lineDistanceSquared);
-            ctx.beginPath();
-            ctx.moveTo(points[i].x, points[i].y);
-            ctx.lineTo(points[j].x, points[j].y);
-            ctx.globalAlpha = (1 - lineDistance / maxLineDistance) * 0.16;
-            ctx.strokeStyle = '#d8a44e';
-            ctx.lineWidth = 0.6;
-            ctx.stroke();
-          }
-        }
+      if (!isPaused && motionAllowed) {
+        targetRotationY += 0.0028;
+        rotationX += (targetRotationX - rotationX) * 0.08;
+        rotationY += (targetRotationY - rotationY) * 0.08;
       }
-
-      ctx.globalAlpha = 1;
-      particleFrame = window.requestAnimationFrame(render);
+      render();
+      particleFrame = window.requestAnimationFrame(renderFrame);
     }
 
     function start() {
-      if (isRunning || !isVisible || document.hidden) return;
+      if (isRunning || !isVisible || document.hidden || isPaused || !motionAllowed) return;
       isRunning = true;
-      particleFrame = window.requestAnimationFrame(render);
+      particleFrame = window.requestAnimationFrame(renderFrame);
     }
 
     function stop() {
@@ -167,12 +249,85 @@
     }
 
     function updateVisibility() {
-      if (isVisible && !document.hidden) start();
+      if (isVisible && !document.hidden && !isPaused && motionAllowed) start();
       else stop();
     }
 
-    var resizeObserver = window.ResizeObserver ? new ResizeObserver(resize) : null;
-    if (resizeObserver) resizeObserver.observe(header);
+    function setShape(nextShape) {
+      shape = nextShape;
+      observatory.querySelectorAll('[data-shape]').forEach(function (button) {
+        button.setAttribute('aria-pressed', String(Number(button.dataset.shape) === shape));
+      });
+      render();
+    }
+
+    function setPaused(nextPaused) {
+      isPaused = nextPaused;
+      var pauseButton = observatory.querySelector('[data-action="pause"]');
+      if (pauseButton) {
+        pauseButton.textContent = isPaused ? '继续旋转' : '暂停旋转';
+        pauseButton.setAttribute('aria-label', isPaused ? '继续旋转' : '暂停旋转');
+      }
+      observatory.classList.toggle('is-paused', isPaused);
+      updateVisibility();
+    }
+
+    function resetView() {
+      targetRotationX = -0.2;
+      targetRotationY = 0.7;
+      render();
+    }
+
+    canvas.addEventListener('pointerdown', function (event) {
+      if (!motionAllowed) return;
+      isDragging = true;
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      canvas.classList.add('is-dragging');
+      if (canvas.setPointerCapture) canvas.setPointerCapture(event.pointerId);
+    });
+    canvas.addEventListener('pointermove', function (event) {
+      if (!isDragging || !motionAllowed) return;
+      targetRotationY += (event.clientX - lastPointerX) * 0.009;
+      targetRotationX += (event.clientY - lastPointerY) * 0.007;
+      targetRotationX = Math.max(-1.2, Math.min(1.2, targetRotationX));
+      lastPointerX = event.clientX;
+      lastPointerY = event.clientY;
+      if (!isRunning) render();
+    });
+    var stopDrag = function (event) {
+      isDragging = false;
+      canvas.classList.remove('is-dragging');
+      if (event && canvas.releasePointerCapture && canvas.hasPointerCapture && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
+    };
+    canvas.addEventListener('pointerup', stopDrag);
+    canvas.addEventListener('pointercancel', stopDrag);
+    canvas.addEventListener('pointerleave', function () { if (isDragging && (!canvas.hasPointerCapture || !canvas.hasPointerCapture())) stopDrag(); });
+    canvas.addEventListener('keydown', function (event) {
+      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+        event.preventDefault();
+        targetRotationY += event.key === 'ArrowLeft' ? -0.12 : 0.12;
+        if (!isRunning) render();
+      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        event.preventDefault();
+        targetRotationX = Math.max(-1.2, Math.min(1.2, targetRotationX + (event.key === 'ArrowUp' ? -0.12 : 0.12)));
+        if (!isRunning) render();
+      } else if (event.key === ' ' || event.key === 'Spacebar') {
+        event.preventDefault();
+        setPaused(!isPaused);
+      } else if (event.key.toLowerCase() === 'r') {
+        event.preventDefault();
+        resetView();
+      }
+    });
+    observatory.querySelectorAll('[data-shape]').forEach(function (button) {
+      button.addEventListener('click', function () { setShape(Number(button.dataset.shape)); });
+    });
+    observatory.querySelector('[data-action="pause"]').addEventListener('click', function () { setPaused(!isPaused); });
+    observatory.querySelector('[data-action="reset"]').addEventListener('click', resetView);
+
+    resizeObserver = window.ResizeObserver ? new ResizeObserver(resize) : null;
+    if (resizeObserver) resizeObserver.observe(observatory);
     window.addEventListener('resize', resize, { passive: true });
     document.addEventListener('visibilitychange', updateVisibility);
     if (window.IntersectionObserver) {
@@ -180,7 +335,7 @@
         isVisible = entries.some(function (entry) { return entry.isIntersecting; });
         updateVisibility();
       }, { rootMargin: '120px 0px', threshold: 0 });
-      visibilityObserver.observe(header);
+      visibilityObserver.observe(observatory);
     } else {
       isVisible = true;
     }
@@ -193,10 +348,49 @@
       if (visibilityObserver) visibilityObserver.disconnect();
       window.removeEventListener('resize', resize);
       document.removeEventListener('visibilitychange', updateVisibility);
-      canvas.remove();
+      observatory.remove();
+      header.classList.remove('has-observatory');
       delete header.dataset.editorialParticles;
       particleFrame = null;
       particleCleanup = null;
+    };
+  }
+
+  function initDepthCards() {
+    if (depthCardCleanup) depthCardCleanup();
+    var cards = Array.from(document.querySelectorAll('#recent-posts .recent-post-item:not(.ads-wrap)'));
+    cards.forEach(function (card) {
+      card.classList.add('depth-card');
+    });
+    if (!cards.length || prefersReducedMotion() || !supportsFinePointer()) return;
+
+    var listeners = [];
+    cards.forEach(function (card) {
+      var move = function (event) {
+        var bounds = card.getBoundingClientRect();
+        var x = (event.clientX - bounds.left) / bounds.width;
+        var y = (event.clientY - bounds.top) / bounds.height;
+        card.classList.add('is-tilting');
+        card.style.setProperty('--depth-x', ((0.5 - y) * 5.5).toFixed(2) + 'deg');
+        card.style.setProperty('--depth-y', ((x - 0.5) * 6.5).toFixed(2) + 'deg');
+        card.style.setProperty('--depth-light-x', (x * 100).toFixed(1) + '%');
+        card.style.setProperty('--depth-light-y', (y * 100).toFixed(1) + '%');
+      };
+      var leave = function () {
+        card.classList.remove('is-tilting');
+        card.style.setProperty('--depth-x', '0deg');
+        card.style.setProperty('--depth-y', '0deg');
+      };
+      card.addEventListener('pointermove', move);
+      card.addEventListener('pointerleave', leave);
+      listeners.push(function () {
+        card.removeEventListener('pointermove', move);
+        card.removeEventListener('pointerleave', leave);
+      });
+    });
+    depthCardCleanup = function () {
+      listeners.forEach(function (remove) { remove(); });
+      depthCardCleanup = null;
     };
   }
 
@@ -940,6 +1134,7 @@
     initContentNavigation();
     initHeroElements();
     initHeroParticles();
+    initDepthCards();
     initRecentPostCardLinks();
     initScrollReveal();
     initTocOffset();
@@ -955,6 +1150,8 @@
 
   document.addEventListener('pjax:send', function () {
     if (window.editorialRevealObserver) window.editorialRevealObserver.disconnect();
+    if (particleCleanup) particleCleanup();
+    if (depthCardCleanup) depthCardCleanup();
   });
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
