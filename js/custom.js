@@ -5,13 +5,24 @@
   var particleFrame = null;
   var particleCleanup = null;
   var depthCardCleanup = null;
+  var observatoryStorageKey = 'lishen-editorial-observatory-state';
+
+  function readObservatorySnapshot() {
+    try {
+      var raw = window.sessionStorage.getItem(observatoryStorageKey);
+      if (!raw) return null;
+      var snapshot = JSON.parse(raw);
+      if (!snapshot || typeof snapshot.paused !== 'boolean' || !Number.isInteger(snapshot.shape) || snapshot.shape < 0 || snapshot.shape > 2) return null;
+      if (!Number.isFinite(snapshot.rotationX) || !Number.isFinite(snapshot.rotationY)) return null;
+      if (snapshot.rotationX < -1.1 || snapshot.rotationX > 1.1 || Math.abs(snapshot.rotationY) > 100000) return null;
+      return snapshot;
+    } catch (error) {
+      return null;
+    }
+  }
 
   function prefersReducedMotion() {
     return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  }
-
-  function supportsFinePointer() {
-    return window.matchMedia && window.matchMedia('(hover: hover) and (pointer: fine)').matches;
   }
 
   function initHeroElements() {
@@ -58,263 +69,250 @@
     }
   }
 
+  /**
+   * Mount the homepage's 3D scene and controls without changing article navigation.
+   * Takes no parameters and returns void; unavailable WebGL falls back to static artwork.
+   */
   function initHeroParticles() {
     var header = document.querySelector('#page-header.full_page');
     if (!header) {
       if (particleCleanup) particleCleanup();
       return;
     }
-
-    if (header.dataset.editorialParticles === 'true') return;
+    if (header.querySelector('#editorial-observatory')) return;
     if (particleCleanup) particleCleanup();
 
     var observatory = document.createElement('section');
     observatory.id = 'editorial-observatory';
     observatory.className = 'observatory';
     observatory.setAttribute('aria-label', '3D 轨道观测台');
-    observatory.innerHTML = '<div class="observatory-heading"><span class="observatory-kicker">INTERACTIVE / 01</span><span class="observatory-state"><i aria-hidden="true"></i> LIVE ORBIT</span></div>'
-      + '<div class="observatory-stage"><canvas id="hero-observatory-canvas" class="observatory-canvas" tabindex="0" aria-label="可交互的 3D 轨道观测台"></canvas><div class="observatory-fallback" aria-hidden="true"><span></span><span></span><span></span></div><div class="observatory-caption"><strong class="observatory-title">Orbital Notes</strong><span class="observatory-subtitle">A living index of ideas</span></div></div>'
-      + '<div class="observatory-controls"><div class="observatory-shapes" role="group" aria-label="切换 3D 形态"><button type="button" data-shape="0" aria-pressed="true">球体</button><button type="button" data-shape="1" aria-pressed="false">环流</button><button type="button" data-shape="2" aria-pressed="false">螺旋</button></div><div class="observatory-tools"><button type="button" data-action="pause" aria-label="暂停旋转">暂停旋转</button><button type="button" data-action="reset" aria-label="复位 3D 观测台">复位</button></div></div>'
-      + '<p class="observatory-hint">拖动旋转 <span aria-hidden="true">·</span> 方向键微调 <span aria-hidden="true">·</span> 空格暂停</p>';
+    observatory.innerHTML = '<div class="observatory-heading"><span class="observatory-kicker"><span class="observatory-eyebrow" aria-hidden="true">FORM / 01</span><span class="observatory-name">轨道观测台</span></span><span class="observatory-state"><i aria-hidden="true"></i><span class="observatory-state-label">缓慢自转</span></span></div>'
+      + '<div class="observatory-stage"><canvas id="hero-observatory-canvas" class="observatory-canvas" tabindex="0" aria-label="交互式 3D 造型，方向键调整视角" aria-describedby="observatory-hint"></canvas><div class="observatory-fallback" aria-hidden="true"><span></span><span></span><span></span></div><div class="observatory-caption"><strong class="observatory-title">Orbital Sphere</strong><span class="observatory-subtitle">光沿轨道流动，灵感由此发生。</span></div></div>'
+      + '<div class="observatory-controls"><div class="observatory-shapes" role="group" aria-label="切换 3D 形态"><button type="button" data-shape="0" aria-pressed="true">球体</button><button type="button" data-shape="1" aria-pressed="false">环流</button><button type="button" data-shape="2" aria-pressed="false">螺旋</button></div><div class="observatory-tools"><button type="button" data-action="pause" aria-label="暂停自动旋转"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M7 5v10M13 5v10" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round"/></svg><span>暂停</span></button><button type="button" data-action="reset" aria-label="复位 3D 视角"><svg viewBox="0 0 20 20" width="16" height="16" aria-hidden="true"><path d="M4 8a6 6 0 1 1 0 4M4 3v5h5" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"/></svg><span>复位</span></button></div></div>'
+      + '<p id="observatory-hint" class="observatory-hint">拖动探索 <span aria-hidden="true">·</span> 方向键调整 <span aria-hidden="true">·</span> R 复位</p>';
     header.appendChild(observatory);
     header.classList.add('has-observatory');
-    header.dataset.editorialParticles = 'true';
+    document.body.classList.add('observatory-in-view');
 
-    var canvas = observatory.querySelector('.observatory-canvas');
-    var ctx = canvas.getContext('2d');
-    if (!ctx) {
-      observatory.classList.add('is-unavailable');
-      particleCleanup = function () {
-        observatory.remove();
-        header.classList.remove('has-observatory');
-        delete header.dataset.editorialParticles;
-        particleCleanup = null;
-      };
-      return;
-    }
-
-    observatory.classList.add('is-ready');
-    var width = 0;
-    var height = 0;
-    var radius = 0;
-    var points = [];
-    var shape = 0;
-    var rotationX = -0.2;
-    var rotationY = 0.7;
-    var targetRotationX = rotationX;
-    var targetRotationY = rotationY;
-    var isVisible = false;
-    var isRunning = false;
-    var isPaused = false;
-    var isDragging = false;
-    var lastPointerX = 0;
-    var lastPointerY = 0;
+    var canvas = observatory.querySelector('canvas');
+    var stage = observatory.querySelector('.observatory-stage');
+    var pauseButton = observatory.querySelector('[data-action="pause"]');
+    var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var renderer = null;
+    var destroyed = false;
+    var suspended = false;
+    var visible = true;
+    var paused = false;
+    var pointerId = null;
+    var lastX = 0;
+    var lastY = 0;
+    var previousTime = 0;
+    var targetX = -0.2;
+    var targetY = 0.7;
+    var selectedShape = 0;
+    var targetWeights = [1, 0, 0];
+    var state = { rotationX: targetX, rotationY: targetY, weights: [1, 0, 0], width: 1, height: 1, pixelRatio: 1 };
     var visibilityObserver = null;
     var resizeObserver = null;
-    var palette = ['#f0c878', '#e06a51', '#75aa91', '#f7f0e4'];
-    var motionAllowed = !prefersReducedMotion();
-
-    function buildPoints() {
-      var count = Math.min(150, Math.max(82, Math.floor(width / 3.2)));
-      points = Array.from({ length: count }, function (_, index) {
-        var u = (index + 0.5) / count;
-        var theta = index * 2.3999632297;
-        var phi = Math.acos(1 - 2 * u);
-        var value = {
-          size: 0.7 + (index % 5) * 0.18,
-          alpha: 0.38 + (index % 7) * 0.075,
-          color: palette[index % palette.length],
-          x: 0,
-          y: 0,
-          z: 0
-        };
-        value.sphere = { x: Math.sin(phi) * Math.cos(theta), y: Math.cos(phi), z: Math.sin(phi) * Math.sin(theta) };
-        value.ring = { x: Math.cos(theta) * (0.58 + (index % 9) * 0.045), y: Math.sin(theta * 3) * 0.12, z: Math.sin(theta) * (0.58 + (index % 9) * 0.045) };
-        var helixTheta = u * Math.PI * 10.5;
-        value.helix = { x: Math.cos(helixTheta) * 0.72, y: (u - 0.5) * 1.75, z: Math.sin(helixTheta) * 0.72 };
-        return value;
-      });
+    var names = ['Orbital Sphere', 'Flux Torus', 'Helix Study'];
+    var descriptions = ['光沿轨道流动，灵感由此发生。', '在循环之间，寻找新的连接。', '循序向上，让每一次探索延展。'];
+    var restoredSnapshot = readObservatorySnapshot();
+    if (restoredSnapshot) {
+      paused = restoredSnapshot.paused;
+      targetX = state.rotationX = restoredSnapshot.rotationX;
+      targetY = state.rotationY = restoredSnapshot.rotationY;
     }
 
-    function resize() {
-      var ratio = Math.min(window.devicePixelRatio || 1, 1.5);
-      width = canvas.clientWidth || observatory.clientWidth;
-      height = canvas.clientHeight || 330;
-      canvas.width = Math.max(1, Math.floor(width * ratio));
-      canvas.height = Math.max(1, Math.floor(height * ratio));
-      ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
-      radius = Math.min(width, height) * 0.31;
-      buildPoints();
-      render();
-    }
-
-    function project(point) {
-      var cosY = Math.cos(rotationY);
-      var sinY = Math.sin(rotationY);
-      var x = point.x * cosY - point.z * sinY;
-      var z = point.x * sinY + point.z * cosY;
-      var cosX = Math.cos(rotationX);
-      var sinX = Math.sin(rotationX);
-      var y = point.y * cosX - z * sinX;
-      z = point.y * sinX + z * cosX;
-      var scale = 3.2 / (3.2 - z);
-      return { x: width * 0.5 + x * radius * scale, y: height * 0.49 + y * radius * scale, z: z, scale: scale };
-    }
-
-    function drawOrbit(tilt, alpha) {
-      ctx.beginPath();
-      for (var index = 0; index <= 80; index += 1) {
-        var angle = index / 80 * Math.PI * 2;
-        var orbitPoint = { x: Math.cos(angle), y: Math.sin(angle) * tilt, z: Math.sin(angle) * 0.22 };
-        var projected = project(orbitPoint);
-        if (index === 0) ctx.moveTo(projected.x, projected.y);
-        else ctx.lineTo(projected.x, projected.y);
-      }
-      ctx.globalAlpha = alpha;
-      ctx.strokeStyle = '#d8a44e';
-      ctx.lineWidth = 0.8;
-      ctx.setLineDash([2, 8]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.globalAlpha = 1;
-    }
-
-    function render() {
-      if (!width || !height) return;
-      ctx.clearRect(0, 0, width, height);
-      ctx.save();
-      var glow = ctx.createRadialGradient(width * 0.5, height * 0.49, 0, width * 0.5, height * 0.49, radius * 1.9);
-      glow.addColorStop(0, 'rgba(229, 183, 94, .18)');
-      glow.addColorStop(0.55, 'rgba(61, 121, 102, .07)');
-      glow.addColorStop(1, 'rgba(21, 18, 15, 0)');
-      ctx.fillStyle = glow;
-      ctx.fillRect(0, 0, width, height);
-      drawOrbit(0.48, 0.27);
-      drawOrbit(1.62, 0.2);
-
-      var projectedPoints = points.map(function (point) {
-        var source = point[shape === 0 ? 'sphere' : shape === 1 ? 'ring' : 'helix'];
-        point.x = source.x;
-        point.y = source.y;
-        point.z = source.z;
-        point.projection = project(point);
-        return point;
-      }).sort(function (first, second) { return first.projection.z - second.projection.z; });
-
-      projectedPoints.forEach(function (point) {
-        var projected = point.projection;
-        var depthAlpha = Math.max(0.2, Math.min(1, 0.53 + projected.z * 0.42));
-        ctx.beginPath();
-        ctx.arc(projected.x, projected.y, point.size * projected.scale, 0, Math.PI * 2);
-        ctx.globalAlpha = point.alpha * depthAlpha;
-        ctx.fillStyle = point.color;
-        ctx.shadowColor = point.color;
-        ctx.shadowBlur = 10 * projected.scale;
-        ctx.fill();
-        ctx.shadowBlur = 0;
-      });
-
-      ctx.globalAlpha = 0.82;
-      ctx.beginPath();
-      ctx.arc(width * 0.5, height * 0.49, Math.max(2.2, radius * 0.018), 0, Math.PI * 2);
-      ctx.fillStyle = '#f7f0e4';
-      ctx.fill();
-      ctx.restore();
-    }
-
-    function renderFrame() {
-      if (!isRunning) {
-        particleFrame = null;
-        return;
-      }
-      if (!isPaused && motionAllowed) {
-        targetRotationY += 0.0028;
-        rotationX += (targetRotationX - rotationX) * 0.08;
-        rotationY += (targetRotationY - rotationY) * 0.08;
-      }
-      render();
+    /** Schedule at most one visible frame. No parameters; returns void. */
+    function requestRender() {
+      if (destroyed || suspended || !renderer || !visible || document.hidden || particleFrame !== null) return;
       particleFrame = window.requestAnimationFrame(renderFrame);
     }
 
-    function start() {
-      if (isRunning || !isVisible || document.hidden || isPaused || !motionAllowed) return;
-      isRunning = true;
-      particleFrame = window.requestAnimationFrame(renderFrame);
-    }
-
+    /** Cancel pending work and reset elapsed time. No parameters; returns void. */
     function stop() {
-      isRunning = false;
-      if (particleFrame) window.cancelAnimationFrame(particleFrame);
+      if (particleFrame !== null) window.cancelAnimationFrame(particleFrame);
       particleFrame = null;
+      previousTime = 0;
     }
 
-    function updateVisibility() {
-      if (isVisible && !document.hidden && !isPaused && motionAllowed) start();
-      else stop();
-    }
-
-    function setShape(nextShape) {
-      shape = nextShape;
-      observatory.querySelectorAll('[data-shape]').forEach(function (button) {
-        button.setAttribute('aria-pressed', String(Number(button.dataset.shape) === shape));
-      });
-      render();
-    }
-
-    function setPaused(nextPaused) {
-      isPaused = nextPaused;
-      var pauseButton = observatory.querySelector('[data-action="pause"]');
-      if (pauseButton) {
-        pauseButton.textContent = isPaused ? '继续旋转' : '暂停旋转';
-        pauseButton.setAttribute('aria-label', isPaused ? '继续旋转' : '暂停旋转');
+    function saveSnapshot() {
+      if (!renderer && !observatory.isConnected) return;
+      try {
+        window.sessionStorage.setItem(observatoryStorageKey, JSON.stringify({
+          paused: paused,
+          shape: selectedShape,
+          rotationX: state.rotationX,
+          rotationY: state.rotationY
+        }));
+      } catch (error) {
+        // Storage may be disabled; the scene remains fully usable without persistence.
       }
-      observatory.classList.toggle('is-paused', isPaused);
-      updateVisibility();
     }
 
+    /**
+     * Advance rotation and shape weights using elapsed time, then render once.
+     * Accepts a DOMHighResTimeStamp in milliseconds and returns void; paused scenes render only on input.
+     */
+    function renderFrame(timestamp) {
+      particleFrame = null;
+      if (destroyed || suspended || !renderer || !visible || document.hidden) return;
+      var elapsed = previousTime ? Math.min((timestamp - previousTime) / 1000, 0.05) : 1 / 60;
+      previousTime = timestamp;
+      var autoRotate = !paused && !motionQuery.matches && pointerId === null;
+      if (autoRotate) targetY += elapsed * 0.085;
+      var response = motionQuery.matches ? 1 : 1 - Math.exp(-elapsed * 10);
+      var moving = false;
+      state.rotationX += (targetX - state.rotationX) * response;
+      state.rotationY += (targetY - state.rotationY) * response;
+      // Interpolate from the current mixture, so repeated shape changes cannot jump.
+      state.weights.forEach(function (weight, index) {
+        state.weights[index] += (targetWeights[index] - weight) * response;
+        if (Math.abs(targetWeights[index] - state.weights[index]) > 0.0005) moving = true;
+        else state.weights[index] = targetWeights[index];
+      });
+      if (Math.abs(targetX - state.rotationX) + Math.abs(targetY - state.rotationY) > 0.0005) moving = true;
+      else {
+        state.rotationX = targetX;
+        state.rotationY = targetY;
+      }
+      renderer.render(state);
+      if (autoRotate || moving) requestRender();
+      else previousTime = 0;
+    }
+
+    /** Synchronize visible and accessible playback labels. No parameters; returns void. */
+    function syncControls() {
+      var reduced = motionQuery.matches;
+      observatory.classList.toggle('is-paused', paused);
+      observatory.classList.toggle('is-static', reduced);
+      var status = !renderer ? '静态预览' : reduced ? '静态展示' : paused ? '已暂停' : '缓慢自转';
+      observatory.querySelector('.observatory-state-label').textContent = status;
+      pauseButton.disabled = reduced || !renderer;
+      pauseButton.querySelector('span').textContent = reduced ? '静态' : paused ? '播放' : '暂停';
+      pauseButton.setAttribute('aria-label', reduced ? '已跟随系统减少动态效果设置' : paused ? '继续自动旋转' : '暂停自动旋转');
+      pauseButton.querySelector('path').setAttribute('d', paused ? 'M7 4.5 15 10l-8 5.5z' : 'M7 5v10M13 5v10');
+    }
+
+    /** Size the drawing buffer to the stage with capped density. No parameters; returns void. */
+    function resize() {
+      if (destroyed) return;
+      var bounds = stage.getBoundingClientRect();
+      state.width = Math.max(1, bounds.width);
+      state.height = Math.max(1, bounds.height);
+      state.pixelRatio = Math.min(window.devicePixelRatio || 1, window.innerWidth < 700 ? 1.5 : 1.75);
+      var width = Math.round(state.width * state.pixelRatio);
+      var height = Math.round(state.height * state.pixelRatio);
+      if (canvas.width !== width) canvas.width = width;
+      if (canvas.height !== height) canvas.height = height;
+      if (!visibilityObserver) updateSceneVisibility();
+      requestRender();
+    }
+
+    /** Initialize or restore GPU resources, retaining a static fallback on failure. No parameters; returns void. */
+    function prepareRenderer() {
+      if (destroyed) return;
+      if (renderer) renderer.dispose();
+      renderer = null;
+      try {
+        if (typeof window.createObservatoryRenderer === 'function') renderer = window.createObservatoryRenderer(canvas);
+      } catch (error) {
+        console.warn('3D observatory initialization failed:', error);
+        renderer = null;
+      }
+      observatory.classList.toggle('is-ready', !!renderer);
+      observatory.classList.toggle('is-unavailable', !renderer);
+      canvas.tabIndex = renderer ? 0 : -1;
+      observatory.querySelector('.observatory-hint').hidden = !renderer;
+      syncControls();
+      resize();
+    }
+
+    /** Toggle automatic rotation while keeping direct manipulation available. No parameters; returns void. */
+    function togglePaused() {
+      if (!renderer || motionQuery.matches) return;
+      paused = !paused;
+      syncControls();
+      stop();
+      requestRender();
+    }
+
+    /** Restore the initial viewing angle in the current shape. No parameters; returns void. */
     function resetView() {
-      targetRotationX = -0.2;
-      targetRotationY = 0.7;
-      render();
+      targetX = -0.2;
+      var fullTurn = Math.PI * 2;
+      targetY = 0.7 + Math.round((state.rotationY - 0.7) / fullTurn) * fullTurn;
+      if (paused || motionQuery.matches) {
+        state.rotationX = targetX;
+        state.rotationY = targetY;
+      }
+      requestRender();
+    }
+
+    /** Select shape index {number} 0–2; returns void and updates the selected button and caption. */
+    function setShape(index) {
+      if (index === selectedShape) return;
+      selectedShape = index;
+      targetWeights = [0, 0, 0];
+      targetWeights[index] = 1;
+      if (motionQuery.matches) state.weights = targetWeights.slice();
+      observatory.querySelectorAll('[data-shape]').forEach(function (button) {
+        button.setAttribute('aria-pressed', String(Number(button.dataset.shape) === index));
+      });
+      observatory.querySelector('.observatory-eyebrow').textContent = 'FORM / 0' + (index + 1);
+      observatory.querySelector('.observatory-title').textContent = names[index];
+      observatory.querySelector('.observatory-subtitle').textContent = descriptions[index];
+      requestRender();
+    }
+
+    /** Release an active pointer and its capture, then resume playback if needed. No parameters; returns void. */
+    function stopDrag() {
+      var activeId = pointerId;
+      pointerId = null;
+      canvas.classList.remove('is-dragging');
+      if (activeId !== null && canvas.hasPointerCapture(activeId)) canvas.releasePointerCapture(activeId);
+      requestRender();
     }
 
     canvas.addEventListener('pointerdown', function (event) {
-      if (!motionAllowed) return;
-      isDragging = true;
-      lastPointerX = event.clientX;
-      lastPointerY = event.clientY;
+      if (!renderer || !event.isPrimary || event.button !== 0 || pointerId !== null) return;
+      pointerId = event.pointerId;
+      lastX = event.clientX;
+      lastY = event.clientY;
+      targetX = state.rotationX;
+      targetY = state.rotationY;
       canvas.classList.add('is-dragging');
-      if (canvas.setPointerCapture) canvas.setPointerCapture(event.pointerId);
+      canvas.setPointerCapture(event.pointerId);
     });
     canvas.addEventListener('pointermove', function (event) {
-      if (!isDragging || !motionAllowed) return;
-      targetRotationY += (event.clientX - lastPointerX) * 0.009;
-      targetRotationX += (event.clientY - lastPointerY) * 0.007;
-      targetRotationX = Math.max(-1.2, Math.min(1.2, targetRotationX));
-      lastPointerX = event.clientX;
-      lastPointerY = event.clientY;
-      if (!isRunning) render();
+      if (event.pointerId !== pointerId) return;
+      targetY += (event.clientX - lastX) * 0.008;
+      if (event.pointerType !== 'touch') targetX = Math.max(-1.1, Math.min(1.1, targetX + (event.clientY - lastY) * 0.006));
+      lastX = event.clientX;
+      lastY = event.clientY;
+      state.rotationX = targetX;
+      state.rotationY = targetY;
+      requestRender();
     });
-    var stopDrag = function (event) {
-      isDragging = false;
-      canvas.classList.remove('is-dragging');
-      if (event && canvas.releasePointerCapture && canvas.hasPointerCapture && canvas.hasPointerCapture(event.pointerId)) canvas.releasePointerCapture(event.pointerId);
-    };
     canvas.addEventListener('pointerup', stopDrag);
     canvas.addEventListener('pointercancel', stopDrag);
-    canvas.addEventListener('pointerleave', function () { if (isDragging && (!canvas.hasPointerCapture || !canvas.hasPointerCapture())) stopDrag(); });
+    canvas.addEventListener('lostpointercapture', function () { if (pointerId !== null) stopDrag(); });
     canvas.addEventListener('keydown', function (event) {
-      if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+      if (!renderer || event.defaultPrevented || event.ctrlKey || event.metaKey || event.altKey) return;
+      if (event.key.indexOf('Arrow') === 0) {
         event.preventDefault();
-        targetRotationY += event.key === 'ArrowLeft' ? -0.12 : 0.12;
-        if (!isRunning) render();
-      } else if (event.key === 'ArrowUp' || event.key === 'ArrowDown') {
+        targetX = state.rotationX;
+        targetY = state.rotationY;
+        if (event.key === 'ArrowLeft') targetY -= 0.12;
+        if (event.key === 'ArrowRight') targetY += 0.12;
+        if (event.key === 'ArrowUp') targetX -= 0.12;
+        if (event.key === 'ArrowDown') targetX += 0.12;
+        state.rotationX = targetX = Math.max(-1.1, Math.min(1.1, targetX));
+        state.rotationY = targetY;
+        requestRender();
+      } else if (event.key === ' ') {
         event.preventDefault();
-        targetRotationX = Math.max(-1.2, Math.min(1.2, targetRotationX + (event.key === 'ArrowUp' ? -0.12 : 0.12)));
-        if (!isRunning) render();
-      } else if (event.key === ' ' || event.key === 'Spacebar') {
-        event.preventDefault();
-        setPaused(!isPaused);
+        togglePaused();
       } else if (event.key.toLowerCase() === 'r') {
         event.preventDefault();
         resetView();
@@ -323,77 +321,184 @@
     observatory.querySelectorAll('[data-shape]').forEach(function (button) {
       button.addEventListener('click', function () { setShape(Number(button.dataset.shape)); });
     });
-    observatory.querySelector('[data-action="pause"]').addEventListener('click', function () { setPaused(!isPaused); });
+    pauseButton.addEventListener('click', togglePaused);
     observatory.querySelector('[data-action="reset"]').addEventListener('click', resetView);
+    var onContextLost = function (event) {
+      if (destroyed) return;
+      event.preventDefault();
+      stopDrag();
+      stop();
+      if (renderer) renderer.dispose();
+      renderer = null;
+      observatory.classList.remove('is-ready');
+      observatory.classList.add('is-unavailable');
+      canvas.tabIndex = -1;
+      observatory.querySelector('.observatory-hint').hidden = true;
+      syncControls();
+    };
+    canvas.addEventListener('webglcontextlost', onContextLost);
+    canvas.addEventListener('webglcontextrestored', prepareRenderer);
 
-    resizeObserver = window.ResizeObserver ? new ResizeObserver(resize) : null;
-    if (resizeObserver) resizeObserver.observe(observatory);
+    var onVisibility = function () {
+      if (destroyed) return;
+      if (suspended || document.hidden || !visible) {
+        stopDrag();
+        stop();
+      } else requestRender();
+    };
+
+    /** Update viewport visibility without IntersectionObserver. No parameters; returns void. */
+    function updateSceneVisibility() {
+      if (destroyed) return;
+      var bounds = observatory.getBoundingClientRect();
+      visible = bounds.bottom > 0 && bounds.top < window.innerHeight;
+      document.body.classList.toggle('observatory-in-view', visible);
+      onVisibility();
+    }
+
+    var onMotionChange = function () {
+      if (destroyed) return;
+      stop();
+      state.rotationX = targetX;
+      state.rotationY = targetY;
+      state.weights = targetWeights.slice();
+      syncControls();
+      requestRender();
+    };
+    var onPageHide = function (event) {
+      if (destroyed) return;
+      saveSnapshot();
+      if (event.persisted) {
+        // Keep the scene and user settings intact while the browser caches this page.
+        suspended = true;
+        stopDrag();
+        stop();
+      } else if (particleCleanup) particleCleanup();
+    };
+    var onPageShow = function (event) {
+      if (destroyed || !event.persisted) return;
+      suspended = false;
+      syncControls();
+      resize();
+      onVisibility();
+    };
+    document.addEventListener('visibilitychange', onVisibility);
+    motionQuery.addEventListener('change', onMotionChange);
     window.addEventListener('resize', resize, { passive: true });
-    document.addEventListener('visibilitychange', updateVisibility);
+    window.addEventListener('pagehide', onPageHide);
+    window.addEventListener('pageshow', onPageShow);
+    if (window.ResizeObserver) {
+      resizeObserver = new ResizeObserver(resize);
+      resizeObserver.observe(stage);
+    }
     if (window.IntersectionObserver) {
       visibilityObserver = new IntersectionObserver(function (entries) {
-        isVisible = entries.some(function (entry) { return entry.isIntersecting; });
-        updateVisibility();
-      }, { rootMargin: '120px 0px', threshold: 0 });
+        if (destroyed) return;
+        visible = entries[0].isIntersecting;
+        document.body.classList.toggle('observatory-in-view', visible);
+        onVisibility();
+      }, { threshold: 0 });
       visibilityObserver.observe(observatory);
-    } else {
-      isVisible = true;
-    }
-    resize();
-    updateVisibility();
+    } else window.addEventListener('scroll', updateSceneVisibility, { passive: true });
 
     particleCleanup = function () {
+      saveSnapshot();
+      destroyed = true;
+      stopDrag();
       stop();
       if (resizeObserver) resizeObserver.disconnect();
       if (visibilityObserver) visibilityObserver.disconnect();
+      document.removeEventListener('visibilitychange', onVisibility);
       window.removeEventListener('resize', resize);
-      document.removeEventListener('visibilitychange', updateVisibility);
+      window.removeEventListener('scroll', updateSceneVisibility);
+      window.removeEventListener('pagehide', onPageHide);
+      window.removeEventListener('pageshow', onPageShow);
+      motionQuery.removeEventListener('change', onMotionChange);
+      canvas.removeEventListener('webglcontextlost', onContextLost);
+      canvas.removeEventListener('webglcontextrestored', prepareRenderer);
+      if (renderer) renderer.dispose();
+      renderer = null;
       observatory.remove();
       header.classList.remove('has-observatory');
-      delete header.dataset.editorialParticles;
-      particleFrame = null;
+      document.body.classList.remove('observatory-in-view');
       particleCleanup = null;
     };
+    if (restoredSnapshot && restoredSnapshot.shape !== 0) setShape(restoredSnapshot.shape);
+    if (restoredSnapshot) state.weights = targetWeights.slice();
+    prepareRenderer();
   }
 
+  /**
+   * Add subtle pointer-driven depth to article cards while preserving their link behavior.
+   * Takes no parameters and returns void; touch and reduced-motion preferences disable the effect.
+   */
   function initDepthCards() {
     if (depthCardCleanup) depthCardCleanup();
     var cards = Array.from(document.querySelectorAll('#recent-posts .recent-post-item:not(.ads-wrap)'));
+    if (!cards.length) return;
+    var motionQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
+    var pointerQuery = window.matchMedia('(hover: hover) and (pointer: fine)');
+    var listeners = [];
+    var resets = [];
+
     cards.forEach(function (card) {
       card.classList.add('depth-card');
-    });
-    if (!cards.length || prefersReducedMotion() || !supportsFinePointer()) return;
+      var bounds = null;
+      var frame = null;
+      var x = 0.5;
+      var y = 0.5;
 
-    var listeners = [];
-    cards.forEach(function (card) {
-      var move = function (event) {
-        var bounds = card.getBoundingClientRect();
-        var x = (event.clientX - bounds.left) / bounds.width;
-        var y = (event.clientY - bounds.top) / bounds.height;
-        card.classList.add('is-tilting');
-        card.style.setProperty('--depth-x', ((0.5 - y) * 5.5).toFixed(2) + 'deg');
-        card.style.setProperty('--depth-y', ((x - 0.5) * 6.5).toFixed(2) + 'deg');
-        card.style.setProperty('--depth-light-x', (x * 100).toFixed(1) + '%');
-        card.style.setProperty('--depth-light-y', (y * 100).toFixed(1) + '%');
-      };
-      var leave = function () {
+      /** Clear a card's pending frame and tilt. No parameters; returns void. */
+      function resetCard() {
+        if (frame !== null) window.cancelAnimationFrame(frame);
+        frame = null;
+        bounds = null;
         card.classList.remove('is-tilting');
-        card.style.setProperty('--depth-x', '0deg');
-        card.style.setProperty('--depth-y', '0deg');
+        ['--depth-x', '--depth-y', '--depth-light-x', '--depth-light-y'].forEach(function (name) { card.style.removeProperty(name); });
+      }
+
+      var move = function (event) {
+        if (motionQuery.matches || !pointerQuery.matches || event.pointerType === 'touch') return;
+        if (!bounds) bounds = card.getBoundingClientRect();
+        x = Math.max(0, Math.min(1, (event.clientX - bounds.left) / bounds.width));
+        y = Math.max(0, Math.min(1, (event.clientY - bounds.top) / bounds.height));
+        if (frame !== null) return;
+        frame = window.requestAnimationFrame(function () {
+          frame = null;
+          card.classList.add('is-tilting');
+          card.style.setProperty('--depth-x', ((0.5 - y) * 5.5).toFixed(2) + 'deg');
+          card.style.setProperty('--depth-y', ((x - 0.5) * 6.5).toFixed(2) + 'deg');
+          card.style.setProperty('--depth-light-x', (x * 100).toFixed(1) + '%');
+          card.style.setProperty('--depth-light-y', (y * 100).toFixed(1) + '%');
+        });
       };
-      card.addEventListener('pointermove', move);
-      card.addEventListener('pointerleave', leave);
+      card.addEventListener('pointermove', move, { passive: true });
+      card.addEventListener('pointerleave', resetCard);
+      resets.push(resetCard);
       listeners.push(function () {
+        resetCard();
         card.removeEventListener('pointermove', move);
-        card.removeEventListener('pointerleave', leave);
+        card.removeEventListener('pointerleave', resetCard);
+        card.classList.remove('depth-card');
       });
     });
+
+    var resetAll = function () { resets.forEach(function (resetCard) { resetCard(); }); };
+    motionQuery.addEventListener('change', resetAll);
+    pointerQuery.addEventListener('change', resetAll);
+    document.addEventListener('visibilitychange', resetAll);
+    window.addEventListener('scroll', resetAll, { passive: true });
+    window.addEventListener('resize', resetAll, { passive: true });
     depthCardCleanup = function () {
       listeners.forEach(function (remove) { remove(); });
+      motionQuery.removeEventListener('change', resetAll);
+      pointerQuery.removeEventListener('change', resetAll);
+      document.removeEventListener('visibilitychange', resetAll);
+      window.removeEventListener('scroll', resetAll);
+      window.removeEventListener('resize', resetAll);
       depthCardCleanup = null;
     };
   }
-
   function initRecentPostCardLinks() {
     var targets = [
       { container: document.getElementById('recent-posts'), cardSelector: '.recent-post-item', linkSelector: '.article-title' },
@@ -956,7 +1061,8 @@
     var close = document.createElement('button');
     close.type = 'button';
     close.className = 'editorial-menu-close';
-    close.textContent = '关闭导航 ×';
+    close.setAttribute('aria-label', '关闭导航');
+    close.innerHTML = '<span class="editorial-menu-close-icon" aria-hidden="true"><span></span><span></span></span><span class="editorial-menu-close-label">关闭导航</span><kbd aria-hidden="true">ESC</kbd>';
     menu.prepend(close);
     close.addEventListener('click', function () { mask.click(); });
     menu.addEventListener('keydown', function (event) {
@@ -1156,4 +1262,13 @@
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);
   else boot();
   document.addEventListener('pjax:complete', boot);
+  window.addEventListener('pagehide', function () {
+    if (depthCardCleanup) depthCardCleanup();
+  });
+  window.addEventListener('pageshow', function (event) {
+    if (event.persisted) {
+      initHeroParticles();
+      initDepthCards();
+    }
+  });
 }());
