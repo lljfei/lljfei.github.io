@@ -236,6 +236,7 @@ inject:
   head:
     - <link rel="stylesheet" href="/css/custom.css">
   bottom:
+    - <script src="/js/observatory-renderer.js"></script>
     - <script src="/js/custom.js"></script>
 
 # ---------------- 搜索引擎站长平台验证 ----------------
